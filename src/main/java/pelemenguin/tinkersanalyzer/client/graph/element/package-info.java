@@ -1,0 +1,3 @@
+@javax.annotation.ParametersAreNonnullByDefault
+@net.minecraft.MethodsReturnNonnullByDefault
+package pelemenguin.tinkersanalyzer.client.graph.element;
