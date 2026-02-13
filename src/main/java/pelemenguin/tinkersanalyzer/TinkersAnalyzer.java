@@ -22,4 +22,8 @@ public final class TinkersAnalyzer {
     public static final ResourceLocation makeResource(String path) {
         return new ResourceLocation(MODID, path);
     }
+
+    public static final String makeTranslationKey(String category, String id) {
+        return "%s.%s.%s".formatted(category, MODID, id);
+    }
 }

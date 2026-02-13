@@ -2,6 +2,7 @@ package pelemenguin.tinkersanalyzer.content;
 
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
+import pelemenguin.tinkersanalyzer.content.modifier.DPSAnalyzerModifier;
 import pelemenguin.tinkersanalyzer.content.modifier.TinkersAnalyzerModifier;
 import slimeknights.tconstruct.library.modifiers.util.ModifierDeferredRegister;
 import slimeknights.tconstruct.library.modifiers.util.StaticModifier;
@@ -11,6 +12,7 @@ public final class TinkersAnalyzerModifiers {
     public static ModifierDeferredRegister MODIFIERS = ModifierDeferredRegister.create(TinkersAnalyzer.MODID);
 
     public static final StaticModifier<TinkersAnalyzerModifier> TINKERS_ANALYZER = MODIFIERS.register("tinkers_analyzer", TinkersAnalyzerModifier::new);
+    public static final StaticModifier<DPSAnalyzerModifier> DPS_ANALYZER = MODIFIERS.register("dps_analyzer", DPSAnalyzerModifier::new);
 
     public static void init() {
         MODIFIERS.register(FMLJavaModLoadingContext.get().getModEventBus());

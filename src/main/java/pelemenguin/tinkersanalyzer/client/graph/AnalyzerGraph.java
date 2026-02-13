@@ -26,16 +26,16 @@ public class AnalyzerGraph {
         this.color = tag.getInt("color");
     }
 
-    private static final int BACKGROUND_ALPGA = 63;
+    private static final int BACKGROUND_ALPGA = 31;
     private void drawBackground(GuiGraphics guiGraphics) {
-        int width = this.getWidth();
-        int height = this.getHeight();
+        int w = this.getWidth();
+        int h = this.getHeight();
 
-        guiGraphics.hLine(0, width - 1, 0, (0xFF000000) | color);
-        guiGraphics.hLine(0, width - 1, height - 1, (0xFF000000) | color);
-        guiGraphics.vLine(0, 0, height - 1, (0xFF000000) | color);
-        guiGraphics.vLine(width - 1, 0, height - 1, (0xFF000000) | color);
-        guiGraphics.fill(0, 0, width - 1, height - 1, (BACKGROUND_ALPGA << 24) | color);
+        guiGraphics.fill(0, 0, w, 1, (0xFF000000) | color);
+        guiGraphics.fill(0, h-1, w, h, (0xFF000000) | color);
+        guiGraphics.fill(0, 0, 1, h, (0xFF000000) | color);
+        guiGraphics.fill(w-1, 0, w, h, (0xFF000000) | color);
+        guiGraphics.fill(1, 1, w, h, (BACKGROUND_ALPGA << 24) | color);
     }
 
     public void render(GuiGraphics guiGraphics) {
@@ -80,7 +80,7 @@ public class AnalyzerGraph {
         int maxY = 0;
 
         for (AnalyzerGraphElement element : this.elements) {
-            int thisY = element.x + element.getHeight();
+            int thisY = element.y + element.getHeight();
             if (thisY > maxY) {
                 maxY = thisY;
             }
@@ -93,6 +93,10 @@ public class AnalyzerGraph {
     public void refreshSize() {
         this.width = -1;
         this.height = -1;
+    }
+
+    public int getColor() {
+        return this.color;
     }
 
 }

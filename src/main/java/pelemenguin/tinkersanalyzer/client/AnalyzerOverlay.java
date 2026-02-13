@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
-import pelemenguin.tinkersanalyzer.client.graph.IAnalyzerGraph;
+import pelemenguin.tinkersanalyzer.client.graph.IAnalyzerGraphCreator;
 import pelemenguin.tinkersanalyzer.library.Analyzer;
 import pelemenguin.tinkersanalyzer.library.hook.DisplayAnalyzerGraphModifierHook;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
@@ -30,16 +30,18 @@ public class AnalyzerOverlay implements IGuiOverlay {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final HashMap<ResourceLocation, IAnalyzerGraph> ALL_GRAPHS = new HashMap<>();
+    private static final HashMap<ResourceLocation, IAnalyzerGraphCreator> ALL_GRAPHS = new HashMap<>();
 
     private Map<UUID, AnalyzerGraph> graphs = new HashMap<>();
 
     @Override
     public void render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
-        ItemStack mainHandItemStack = Minecraft.getInstance().player.getMainHandItem();
+        final LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) return;
+        ItemStack mainHandItemStack = player.getMainHandItem();
         Item mainHandItem = mainHandItemStack.getItem();
         Analyzer analyzer = new Analyzer();
-        if (mainHandItem instanceof IModifiable item) {
+        if (mainHandItem instanceof IModifiable) {
             ToolStack toolStack = ToolStack.from(mainHandItemStack);
             for (ModifierEntry entry : toolStack.getModifierList()) {
                 DisplayAnalyzerGraphModifierHook hook = entry.getHook(DisplayAnalyzerGraphModifierHook.INSTANCE);
@@ -53,6 +55,7 @@ public class AnalyzerOverlay implements IGuiOverlay {
         this.loadAnalyzer(analyzer);
 
         PoseStack pose = guiGraphics.pose();
+        pose.pushPose();
 
         int curY = 4;
 
@@ -61,8 +64,9 @@ public class AnalyzerOverlay implements IGuiOverlay {
             graph.render(guiGraphics);
             pose.translate(-4, -curY, 0);
 
-            curY += graph.getHeight();
+            curY += graph.getHeight() + 1;
         }
+        pose.popPose();
     }
 
     public void loadAnalyzer(Analyzer analyzer) {
@@ -89,8 +93,8 @@ public class AnalyzerOverlay implements IGuiOverlay {
     public AnalyzerOverlay() {
     }
 
-    public static void registerGraph(ResourceLocation id, IAnalyzerGraph graph) {
-        IAnalyzerGraph original = ALL_GRAPHS.putIfAbsent(id, graph);
+    public static void registerGraph(ResourceLocation id, IAnalyzerGraphCreator graph) {
+        IAnalyzerGraphCreator original = ALL_GRAPHS.putIfAbsent(id, graph);
         if (original != null) {
             throw new IllegalArgumentException("Graph for ID " + id + " already registered!");
         }
