@@ -33,9 +33,11 @@ public class DPSGraph extends AnalyzerGraph {
         this.addElement(new DiagramGraphElement(this, 64, 48)
                 .horizontalAxisName(Component.literal("Time"))
                 .verticalAxisName(Component.literal("Damage / DPS"))
+                .labelHorizontalTick((t) -> "%.2gs".formatted(t / 20))
+                .timeAsHorizontalAxis()
                 .domain(-60.0f, 0.0f)
                 .scatterDiagram(recentDamages)
-                .timeAsHorizontalAxis()
+                .autoYRange(0f, 2f, true, false)
             );
     }
 

@@ -1,7 +1,9 @@
 package pelemenguin.tinkersanalyzer.client.graph.element;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Deque;
+
+import org.slf4j.Logger;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -9,6 +11,8 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.logging.LogUtils;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -21,23 +25,44 @@ import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
 
 public class DiagramGraphElement extends AnalyzerGraphElement {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
+
+    private static final AxisTickLabel DEFAULT_TICK_LABEL = (x) -> "%.2g".formatted(x);
+    private static final float SMOOTH_FACTOR = 0.1f;
+
     AnalyzerGraph parent;
     int width;
     int height;
 
     Component horizontalAxisName;
     Component verticalAxisName;
-    float minX;
-    float maxX;
+    float minX = 0;
+    float maxX = 1;
+    float minY = 0;
+    float maxY = 1;
+    float minMaxY = 1;
+    float maxMinY = 0;
+    int maxHorizontalTick;
+    int maxVerticalTick;
+    boolean fixMinY = true;
+    boolean fixMaxY = true;
     boolean horizontalAxisIsTime;
+    AxisTickLabel horizontalTickLabel = DEFAULT_TICK_LABEL;
+    AxisTickLabel verticalTickLabel = DEFAULT_TICK_LABEL;
+
+    float targetMinY;
+    float targetMaxY;
 
     public DiagramGraphElement(AnalyzerGraph parent, int width, int height) {
         this.width = width;
         this.height = height;
         this.parent = parent;
+
+        this.maxHorizontalTick = this.width / 10;
+        this.maxVerticalTick = this.height / 10;
     }
 
-    ArrayList<Diagram> diagrams = new ArrayList<>();
+    ArrayDeque<Diagram> diagrams = new ArrayDeque<>();
 
     @Override
     public void draw(GuiGraphics guiGraphics) {
@@ -47,23 +72,27 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         PoseStack pose = guiGraphics.pose();
         Font font = Minecraft.getInstance().font;
         int lineHeight = font.lineHeight;
+        float horizontalAxisNameWidth = 0;
         if (this.horizontalAxisName != null) {
-            int width = font.width(this.horizontalAxisName);
+            horizontalAxisNameWidth = font.width(this.horizontalAxisName);
             pose.pushPose();
             pose.translate(this.width - 1, this.getHeight() - 2, 0);
             pose.scale(0.5f, 0.5f, 1.0f);
-            guiGraphics.drawString(font, this.horizontalAxisName, -width, -lineHeight, this.parent.getColor(), false);
+            guiGraphics.drawString(font, this.horizontalAxisName, -(int) horizontalAxisNameWidth, -lineHeight, this.parent.getColor(), false);
             pose.popPose();
+            horizontalAxisNameWidth = (float) this.width - 0.5f * horizontalAxisNameWidth;
         }
+        float verticalAxisNameHeight = 0;
         if (this.verticalAxisName != null) {
             pose.pushPose();
             pose.translate(2, 1, 0);
             pose.scale(0.5f, 0.5f, 1.0f);
             guiGraphics.drawString(font, this.verticalAxisName, 0, 0, this.parent.getColor(), false);
             pose.popPose();
+            verticalAxisNameHeight = 0.5f * lineHeight;
         }
 
-        drawReferenceLine(guiGraphics, 5, 3);
+        drawReferenceLine(guiGraphics, horizontalAxisNameWidth, verticalAxisNameHeight);
 
         float minX = this.minX;
         float maxX = this.maxX;
@@ -75,8 +104,23 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
                 maxX += curTime;
             }
         }
+
+        float minYFromDiagrams = this.maxMinY;
+        float maxYFromDiagrams = this.minMaxY;
         for (Diagram diagram : this.diagrams) {
             diagram.draw(guiGraphics, this, minX, maxX);
+            if (diagram.minY < minYFromDiagrams && Float.isFinite(diagram.minY)) minYFromDiagrams = diagram.minY;
+            if (diagram.maxY > maxYFromDiagrams && Float.isFinite(diagram.maxY)) maxYFromDiagrams = diagram.maxY;
+        }
+        if (!Float.isInfinite(minYFromDiagrams) && !Float.isInfinite(maxYFromDiagrams)) {
+            if (this.targetMinY != minYFromDiagrams) {
+                this.targetMinY = minYFromDiagrams;
+                this.updateUnitYNextFrame = true;
+            }
+            if (this.targetMaxY != maxYFromDiagrams) {
+                this.targetMaxY = maxYFromDiagrams;
+                this.updateUnitYNextFrame = true;
+            }
         }
     }
 
@@ -100,9 +144,12 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         pose.popPose();
     }
 
-    private void drawReferenceLine(GuiGraphics guiGraphics, int vLineCount, int hLineCount) {
-        float unitX = (float) this.width / vLineCount;
-        float unitY = (float) this.height / hLineCount;
+    private float unitXForReferenceLine = Float.NaN;
+    private float unitYForReferenceLine = Float.NaN;
+    private boolean updateUnitYNextFrame = false;
+    private long lastInterpolationTime = 0;
+    private void drawReferenceLine(GuiGraphics guiGraphics, float horizontalAxisNameWidth, float verticalAxisNameHeight) {
+        PoseStack pose = guiGraphics.pose();
 
         int color = 0xBF000000 | this.parent.getColor();
         float r = (float) FastColor.ARGB32.red(color) / 255.0f;
@@ -110,13 +157,71 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         float b = (float) FastColor.ARGB32.blue(color) / 255.0f;
         float a = (float) FastColor.ARGB32.alpha(color) / 255.0f;
 
-        for (int i = 1; i <= vLineCount; i++) {
-            float curX = (unitX * i);
-            drawThinLine(guiGraphics, curX, 0, curX, this.height, r, g, b, a);
+        if (Float.isNaN(unitXForReferenceLine)) {
+            this.unitXForReferenceLine = calcTick(this.minX, this.maxX, this.maxHorizontalTick);
         }
-        for (int j = 0; j < hLineCount; j++) {
-            float curY = (unitY * j);
+
+        float minYToDraw = this.minY;
+        float maxYToDraw = this.maxY;
+        float tempTargetMinY = this.targetMinY * 1.2f;
+        float tempTargetMaxY = this.targetMaxY * 1.2f;
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null) {
+            minYToDraw = this.minY * (1 - SMOOTH_FACTOR) + tempTargetMinY * SMOOTH_FACTOR;
+            maxYToDraw = this.maxY * (1 - SMOOTH_FACTOR) + tempTargetMaxY * SMOOTH_FACTOR;
+            if (level.getGameTime() != this.lastInterpolationTime) {
+                float diffMin = Math.abs(tempTargetMinY - this.minY);
+                float diffMax = Math.abs(tempTargetMaxY - this.maxY);
+                if (diffMin == 0 && diffMax == 0) {
+                    // Take no action
+                } else if (diffMin < 1e-5f && diffMax < 1e-5f) {
+                    this.minY = tempTargetMinY;
+                    this.maxY = tempTargetMaxY;
+                    this.updateUnitYNextFrame = true;
+                } else {
+                    this.minY = minYToDraw;
+                    this.maxY = maxYToDraw;
+                    this.updateUnitYNextFrame = true;
+                }
+                this.lastInterpolationTime = level.getGameTime();
+            } else {
+                float partialTick = Minecraft.getInstance().getPartialTick();
+                minYToDraw = this.minY * (1 - partialTick) + minYToDraw * (partialTick);
+                maxYToDraw = this.maxY * (1 - partialTick) + maxYToDraw * (partialTick);
+            }
+        }
+
+        if (this.updateUnitYNextFrame || Float.isNaN(this.unitYForReferenceLine)) {
+            this.unitYForReferenceLine = calcTick(minYToDraw, maxYToDraw, this.maxVerticalTick);
+            this.updateUnitYNextFrame = false;
+        }
+
+        Font font = Minecraft.getInstance().font;
+        int lineHeight = font.lineHeight;
+        float quarterLineHeight = 0.25f * lineHeight;
+        float vAxisTagLimit = quarterLineHeight + verticalAxisNameHeight + 0.25f;
+        for (float i = this.minX; i <= this.maxX; i += this.unitXForReferenceLine) {
+            float curX = (i - this.minX) / (this.maxX - this.minX) * this.width + 0.25f; // +0.25f for I don't know what reason
+            drawThinLine(guiGraphics, curX, 0, curX, this.height, r, g, b, a);
+
+            Component toDraw = Component.literal(this.horizontalTickLabel.getTickLabel(i));
+            if (curX + 0.25f * font.width(toDraw) > horizontalAxisNameWidth) continue;
+            pose.pushPose();
+            pose.translate(curX + 1, this.height - 1, 0);
+            pose.scale(0.25f, 0.25f, 1.0f);
+            guiGraphics.drawString(font, toDraw, 0, -lineHeight - 1, this.parent.getColor(), false);
+            pose.popPose();
+        }
+        for (float j = minYToDraw + this.unitYForReferenceLine; j <= maxYToDraw; j += this.unitYForReferenceLine) {
+            float curY = (maxYToDraw - j) / (maxYToDraw - minYToDraw) * this.height;
             drawThinLine(guiGraphics, 0, curY, this.width, curY, r, g, b, a);
+
+            if (curY < vAxisTagLimit) continue;
+            pose.pushPose();
+            pose.translate(1, curY, 0);
+            pose.scale(0.25f, 0.25f, 1f);
+            guiGraphics.drawString(font, Component.literal(this.verticalTickLabel.getTickLabel(j)), 1, -lineHeight - 1, this.parent.getColor(), false);
+            pose.popPose();
         }
     }
 
@@ -136,13 +241,55 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         return this;
     }
 
+    public DiagramGraphElement range(float minY, float maxY) {
+        this.minY = minY;
+        this.maxY = maxY;
+        this.minMaxY = maxY;
+        this.maxMinY = minY;
+        this.fixMaxY = true;
+        this.fixMinY = true;
+        return this;
+    }
+
     public DiagramGraphElement timeAsHorizontalAxis() {
         this.horizontalAxisIsTime = true;
         return this;
     }
 
     public DiagramGraphElement scatterDiagram(Deque<Vec2> location) {
-        this.diagrams.add(new ScatterDiagram(location));
+        this.diagrams.addLast(new ScatterDiagram(location));
+        return this;
+    }
+
+    /**
+     * Automatically set the diagram's vertical axis' range by last diagram added.
+     * @param maxLowerBound The lower bound of the vertical axis cannot go greater than this value.
+     * @param minUpperBound The upper bound of the vertical axis cannot go less than this value.
+     * @param fixLowerBound Fix the vertical axis' lower bound to the value of {@link maxLowerBound}
+     *                      (For example, when displaying something that is always positive, you can fix the lower bound to 0)
+     * @param fixUpperBound Fix the vertical axis' upper bound to the value of {@link minUpperBound}
+     * @return
+     */
+    public DiagramGraphElement autoYRange(float maxLowerBound, float minUpperBound, boolean fixLowerBound, boolean fixUpperBound) {
+        this.maxMinY = maxLowerBound;
+        this.minMaxY = minUpperBound;
+        this.fixMaxY = fixUpperBound;
+        this.fixMinY = fixLowerBound;
+        return this;
+    }
+
+    @FunctionalInterface
+    public static interface AxisTickLabel {
+        String getTickLabel(float x);
+    }
+
+    public DiagramGraphElement labelHorizontalTick(AxisTickLabel function) {
+        this.horizontalTickLabel = function;
+        return this;
+    }
+
+    public DiagramGraphElement labelVerticalTick(AxisTickLabel function) {
+        this.verticalTickLabel = function;
         return this;
     }
 
@@ -156,7 +303,30 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         return this.height;
     }
 
+    private static float calcTick(float minData, float maxData, int maxTickOnScreen) {
+        float diff = maxData - minData;
+        float minUnit = diff / maxTickOnScreen;
+        float logged = (float) Math.log10(minUnit);
+        float remainder = logged % 1.0f;
+
+        float result;
+        if (remainder < 0.30102999566398119521373889472449f) {
+            result = (float) (2.0f * Math.pow(10, (int) logged));
+        } else if (remainder < 0.69897000433601880478626110527551f) {
+            result = (float) (5.0f * Math.pow(10, (int) logged));
+        } else {
+            result = (float) Math.pow(10, 1 + (int) logged);
+        }
+
+        if (result <= 0) {
+            LOGGER.error("Calculated a wrong tick: {}", result);
+            return 1.0f;
+        }
+        return result;
+    }
+
     private static abstract class Diagram {
+        Deque<Vec2> data;
         float minY;
         float maxY;
         public abstract void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX);
@@ -164,39 +334,48 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             float x = point.x;
             float y = point.y;
 
-
             int transformedX = (int) ((x - minX) / (maxX - minX) * parent.width);
-            int transformedY = (int) ((1 - (y - this.minY) / (this.maxY - this.minY)) * parent.height);
+            int transformedY = (int) ((1 - (y - parent.minY) / (parent.maxY - parent.minY)) * parent.height);
 
             return new Vec2(transformedX, transformedY);
+        }
+        protected void cleanOldData(float minX) {
+            while (!this.data.isEmpty() && this.data.peekFirst().x < minX) {
+                this.data.pollFirst();
+            }
         }
     }
 
     private static class ScatterDiagram extends Diagram {
-        Deque<Vec2> data;
         public ScatterDiagram(Deque<Vec2> data) {
             this.data = data;
-            // TODO: Remove this after test
-            this.minY = 0;
-            this.maxY = 10;
         }
         @Override
         public void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX) {
             int color = 0xFF000000 | parent.parent.getColor();
+            float minY = Float.POSITIVE_INFINITY;
+            float maxY = Float.NEGATIVE_INFINITY;
             for (Vec2 point : this.data) {
+                if (point.y < minY) minY = point.y;
+                if (point.y > maxY) maxY = point.y;
                 Vec2 transformed = this.processPoint(parent, minX, maxX, point);
 
-                int x = (int) transformed.x;
-                int y = (int) transformed.y;
+                float x = transformed.x;
+                float y = transformed.y;
 
-                if (x < 0) break;
-                if (x > parent.width) continue;
+                if (x < 0f) break;
+                if (x > (float) parent.width) continue;
+                if (y < 0f || y > (float) parent.height) continue;
 
-                guiGraphics.fill(x, y, x+1, y+1, color);
+                PoseStack pose = guiGraphics.pose();
+                pose.pushPose();
+                pose.translate(x, y, 0);
+                guiGraphics.fill(0, 0, 1, 1, color);
+                pose.popPose();
             }
-            while (!this.data.isEmpty() && this.data.peekFirst().x < minX) {
-                this.data.pollFirst();
-            }
+            this.cleanOldData(minX);
+            this.minY = minY;
+            this.maxY = maxY;
         }
     }
 
