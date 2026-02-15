@@ -1,0 +1,3 @@
+@javax.annotation.ParametersAreNonnullByDefault
+@net.minecraft.MethodsReturnNonnullByDefault
+package pelemenguin.tinkersanalyzer.content.network;

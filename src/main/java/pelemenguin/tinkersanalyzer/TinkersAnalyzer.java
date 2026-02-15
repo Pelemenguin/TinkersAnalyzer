@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.Mod;
 import pelemenguin.tinkersanalyzer.client.TinkersAnalyzerClient;
 import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerItems;
 import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerModifiers;
+import pelemenguin.tinkersanalyzer.content.network.TinkersAnalyzerNetwork;
 
 @Mod(TinkersAnalyzer.MODID)
 public final class TinkersAnalyzer {
@@ -15,6 +16,7 @@ public final class TinkersAnalyzer {
     public TinkersAnalyzer() {
         TinkersAnalyzerItems.init();
         TinkersAnalyzerModifiers.init();
+        TinkersAnalyzerNetwork.init();
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> TinkersAnalyzerClient::init);
     }

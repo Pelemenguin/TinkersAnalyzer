@@ -2,6 +2,7 @@ package pelemenguin.tinkersanalyzer.client.graph.element;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.function.LongSupplier;
 
 import org.slf4j.Logger;
 
@@ -20,6 +21,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
 
@@ -29,6 +31,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
 
     private static final AxisTickLabel DEFAULT_TICK_LABEL = (x) -> "%.2g".formatted(x);
     private static final float SMOOTH_FACTOR = 0.1f;
+    private static final float VERTICAL_AXIS_BOUND_MULIPLIER = 1.2f;
 
     AnalyzerGraph parent;
     int width;
@@ -47,6 +50,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
     boolean fixMinY = true;
     boolean fixMaxY = true;
     boolean horizontalAxisIsTime;
+    LongSupplier timeOrigin = () -> 0;
     AxisTickLabel horizontalTickLabel = DEFAULT_TICK_LABEL;
     AxisTickLabel verticalTickLabel = DEFAULT_TICK_LABEL;
 
@@ -58,8 +62,8 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         this.height = height;
         this.parent = parent;
 
-        this.maxHorizontalTick = this.width / 10;
-        this.maxVerticalTick = this.height / 10;
+        this.maxHorizontalTick = this.width / 8;
+        this.maxVerticalTick = this.height / 8;
     }
 
     ArrayDeque<Diagram> diagrams = new ArrayDeque<>();
@@ -99,7 +103,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         if (this.horizontalAxisIsTime) {
             ClientLevel level = Minecraft.getInstance().level;
             if (level != null) {
-                float curTime = level.getGameTime() + Minecraft.getInstance().getPartialTick();
+                float curTime = (level.getGameTime() - this.timeOrigin.getAsLong()) + Minecraft.getInstance().getPartialTick();
                 minX += curTime;
                 maxX += curTime;
             }
@@ -109,8 +113,10 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         float maxYFromDiagrams = this.minMaxY;
         for (Diagram diagram : this.diagrams) {
             diagram.draw(guiGraphics, this, minX, maxX);
-            if (diagram.minY < minYFromDiagrams && Float.isFinite(diagram.minY)) minYFromDiagrams = diagram.minY;
-            if (diagram.maxY > maxYFromDiagrams && Float.isFinite(diagram.maxY)) maxYFromDiagrams = diagram.maxY;
+            float curMinY = diagram.minY * VERTICAL_AXIS_BOUND_MULIPLIER;
+            float curMaxY = diagram.maxY * VERTICAL_AXIS_BOUND_MULIPLIER;
+            if (!this.fixMinY && curMinY < minYFromDiagrams && Float.isFinite(curMinY)) minYFromDiagrams = curMinY;
+            if (!this.fixMaxY && curMaxY > maxYFromDiagrams && Float.isFinite(curMaxY)) maxYFromDiagrams = curMaxY;
         }
         if (!Float.isInfinite(minYFromDiagrams) && !Float.isInfinite(maxYFromDiagrams)) {
             if (this.targetMinY != minYFromDiagrams) {
@@ -163,8 +169,8 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
 
         float minYToDraw = this.minY;
         float maxYToDraw = this.maxY;
-        float tempTargetMinY = this.targetMinY * 1.2f;
-        float tempTargetMaxY = this.targetMaxY * 1.2f;
+        float tempTargetMinY = this.targetMinY;
+        float tempTargetMaxY = this.targetMaxY;
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null) {
             minYToDraw = this.minY * (1 - SMOOTH_FACTOR) + tempTargetMinY * SMOOTH_FACTOR;
@@ -201,7 +207,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         float quarterLineHeight = 0.25f * lineHeight;
         float vAxisTagLimit = quarterLineHeight + verticalAxisNameHeight + 0.25f;
         for (float i = this.minX; i <= this.maxX; i += this.unitXForReferenceLine) {
-            float curX = (i - this.minX) / (this.maxX - this.minX) * this.width + 0.25f; // +0.25f for I don't know what reason
+            float curX = (i - this.minX) / (this.maxX - this.minX) * this.width;
             drawThinLine(guiGraphics, curX, 0, curX, this.height, r, g, b, a);
 
             Component toDraw = Component.literal(this.horizontalTickLabel.getTickLabel(i));
@@ -256,6 +262,11 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         return this;
     }
 
+    public DiagramGraphElement timeOrigin(LongSupplier supplier) {
+        this.timeOrigin = supplier;
+        return this;
+    }
+
     public DiagramGraphElement scatterDiagram(Deque<Vec2> location) {
         this.diagrams.addLast(new ScatterDiagram(location));
         return this;
@@ -307,15 +318,16 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         float diff = maxData - minData;
         float minUnit = diff / maxTickOnScreen;
         float logged = (float) Math.log10(minUnit);
-        float remainder = logged % 1.0f;
+        int exponential = Mth.floor(logged);
+        float remainder = logged - exponential;
 
         float result;
         if (remainder < 0.30102999566398119521373889472449f) {
-            result = (float) (2.0f * Math.pow(10, (int) logged));
+            result = (float) (2.0f * Math.pow(10, exponential));
         } else if (remainder < 0.69897000433601880478626110527551f) {
-            result = (float) (5.0f * Math.pow(10, (int) logged));
+            result = (float) (5.0f * Math.pow(10, exponential));
         } else {
-            result = (float) Math.pow(10, 1 + (int) logged);
+            result = (float) Math.pow(10, 1 + exponential);
         }
 
         if (result <= 0) {
@@ -334,8 +346,8 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             float x = point.x;
             float y = point.y;
 
-            int transformedX = (int) ((x - minX) / (maxX - minX) * parent.width);
-            int transformedY = (int) ((1 - (y - parent.minY) / (parent.maxY - parent.minY)) * parent.height);
+            float transformedX = ((x - minX) / (maxX - minX) * (parent.width - 1));
+            float transformedY = ((1 - (y - parent.minY) / (parent.maxY - parent.minY)) * (parent.height - 1));
 
             return new Vec2(transformedX, transformedY);
         }
@@ -355,25 +367,38 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             int color = 0xFF000000 | parent.parent.getColor();
             float minY = Float.POSITIVE_INFINITY;
             float maxY = Float.NEGATIVE_INFINITY;
+            this.cleanOldData(minX);
+
+            PoseStack pose = guiGraphics.pose();
+            pose.pushPose();
+
+            RenderSystem.setShader(GameRenderer::getRendertypeGuiShader);
+            Tesselator tesselator = Tesselator.getInstance();
+            BufferBuilder builder = tesselator.getBuilder();
+            float half = 0.5f;
+            builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+
             for (Vec2 point : this.data) {
                 if (point.y < minY) minY = point.y;
                 if (point.y > maxY) maxY = point.y;
                 Vec2 transformed = this.processPoint(parent, minX, maxX, point);
 
                 float x = transformed.x;
-                float y = transformed.y;
+                float y = transformed.y + half;
 
                 if (x < 0f) break;
                 if (x > (float) parent.width) continue;
-                if (y < 0f || y > (float) parent.height) continue;
+                if (y < 0f || y > (float) parent.height - 1) continue;
 
-                PoseStack pose = guiGraphics.pose();
-                pose.pushPose();
-                pose.translate(x, y, 0);
-                guiGraphics.fill(0, 0, 1, 1, color);
-                pose.popPose();
+                builder.vertex(pose.last().pose(), x - half, y + half, 0).color(color).endVertex();
+                builder.vertex(pose.last().pose(), x + half, y + half, 0).color(color).endVertex();
+                builder.vertex(pose.last().pose(), x + half, y - half, 0).color(color).endVertex();
+                builder.vertex(pose.last().pose(), x - half, y - half, 0).color(color).endVertex();
             }
-            this.cleanOldData(minX);
+
+            tesselator.end();
+            pose.popPose();
+
             this.minY = minY;
             this.maxY = maxY;
         }
