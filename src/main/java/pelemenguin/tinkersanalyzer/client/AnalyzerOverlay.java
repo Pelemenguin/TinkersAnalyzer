@@ -56,6 +56,7 @@ public class AnalyzerOverlay implements IGuiOverlay {
 
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
+        pose.scale(2, 2, 1);
 
         int curY = 4;
 

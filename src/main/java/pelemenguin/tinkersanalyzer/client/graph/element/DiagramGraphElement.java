@@ -20,7 +20,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
@@ -130,6 +129,27 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         }
     }
 
+    private static void fill(GuiGraphics guiGraphics, float x1, float y1, float x2, float y2, int color) {
+        PoseStack pose = guiGraphics.pose();
+        pose.pushPose();
+
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder builder = tesselator.getBuilder();
+        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+
+        builder.vertex(pose.last().pose(), x1, y1, 0).color(color).endVertex();
+        builder.vertex(pose.last().pose(), x1, y2, 0).color(color).endVertex();
+        builder.vertex(pose.last().pose(), x2, y2, 0).color(color).endVertex();
+        builder.vertex(pose.last().pose(), x2, y1, 0).color(color).endVertex();
+
+        tesselator.end();
+        RenderSystem.disableBlend();
+        pose.popPose();
+    }
+
     private static void drawThinLine(GuiGraphics guiGraphics, float x1, float y1, float x2, float y2, float r, float g, float b, float a) {
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
@@ -157,11 +177,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
     private void drawReferenceLine(GuiGraphics guiGraphics, float horizontalAxisNameWidth, float verticalAxisNameHeight) {
         PoseStack pose = guiGraphics.pose();
 
-        int color = 0xBF000000 | this.parent.getColor();
-        float r = (float) FastColor.ARGB32.red(color) / 255.0f;
-        float g = (float) FastColor.ARGB32.green(color) / 255.0f;
-        float b = (float) FastColor.ARGB32.blue(color) / 255.0f;
-        float a = (float) FastColor.ARGB32.alpha(color) / 255.0f;
+        int color = 0x7F000000 | this.parent.getColor();
 
         if (Float.isNaN(unitXForReferenceLine)) {
             this.unitXForReferenceLine = calcTick(this.minX, this.maxX, this.maxHorizontalTick);
@@ -206,9 +222,11 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         int lineHeight = font.lineHeight;
         float quarterLineHeight = 0.25f * lineHeight;
         float vAxisTagLimit = quarterLineHeight + verticalAxisNameHeight + 0.25f;
-        for (float i = this.minX; i <= this.maxX; i += this.unitXForReferenceLine) {
+        float width = (float) Minecraft.getInstance().getWindow().getGuiScale() * 0.0625f;
+        for (float i = this.minX; i < this.maxX; i += this.unitXForReferenceLine) {
             float curX = (i - this.minX) / (this.maxX - this.minX) * this.width;
-            drawThinLine(guiGraphics, curX, 0, curX, this.height, r, g, b, a);
+            if (curX >= this.width - 1.25f) continue;
+            fill(guiGraphics, curX, 0, curX + width, this.height, color);
 
             Component toDraw = Component.literal(this.horizontalTickLabel.getTickLabel(i));
             if (curX + 0.25f * font.width(toDraw) > horizontalAxisNameWidth) continue;
@@ -218,9 +236,10 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             guiGraphics.drawString(font, toDraw, 0, -lineHeight - 1, this.parent.getColor(), false);
             pose.popPose();
         }
-        for (float j = minYToDraw + this.unitYForReferenceLine; j <= maxYToDraw; j += this.unitYForReferenceLine) {
+        for (float j = minYToDraw + this.unitYForReferenceLine; j < maxYToDraw; j += this.unitYForReferenceLine) {
             float curY = (maxYToDraw - j) / (maxYToDraw - minYToDraw) * this.height;
-            drawThinLine(guiGraphics, 0, curY, this.width, curY, r, g, b, a);
+            if (curY <= 0.25f) continue;
+            fill(guiGraphics, 0, curY, this.width, curY + width, color);
 
             if (curY < vAxisTagLimit) continue;
             pose.pushPose();
@@ -229,6 +248,9 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             guiGraphics.drawString(font, Component.literal(this.verticalTickLabel.getTickLabel(j)), 1, -lineHeight - 1, this.parent.getColor(), false);
             pose.popPose();
         }
+
+        fill(guiGraphics, this.width - width, 0, this.width, this.height, color);
+        fill(guiGraphics, 0, 0, this.width, width, color);
     }
 
     public DiagramGraphElement horizontalAxisName(Component name) {
