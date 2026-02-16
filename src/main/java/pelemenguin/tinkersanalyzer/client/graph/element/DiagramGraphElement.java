@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.function.LongSupplier;
 
+import org.joml.Matrix4f;
 import org.slf4j.Logger;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -127,6 +128,10 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
                 this.updateUnitYNextFrame = true;
             }
         }
+
+        // Throw away cache every frame
+        this.cachedMinYForThisFrame = Float.NaN;
+        this.cachedMaxYForThisFrame = Float.NaN;
     }
 
     private static void fill(GuiGraphics guiGraphics, float x1, float y1, float x2, float y2, int color) {
@@ -150,6 +155,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         pose.popPose();
     }
 
+    @SuppressWarnings("unused") // Use this later
     private static void drawThinLine(GuiGraphics guiGraphics, float x1, float y1, float x2, float y2, float r, float g, float b, float a) {
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
@@ -170,18 +176,10 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         pose.popPose();
     }
 
-    private float unitXForReferenceLine = Float.NaN;
-    private float unitYForReferenceLine = Float.NaN;
-    private boolean updateUnitYNextFrame = false;
-    private long lastInterpolationTime = 0;
-    private void drawReferenceLine(GuiGraphics guiGraphics, float horizontalAxisNameWidth, float verticalAxisNameHeight) {
-        PoseStack pose = guiGraphics.pose();
-
-        int color = 0x7F000000 | this.parent.getColor();
-
-        if (Float.isNaN(unitXForReferenceLine)) {
-            this.unitXForReferenceLine = calcTick(this.minX, this.maxX, this.maxHorizontalTick);
-        }
+    private float cachedMinYForThisFrame = Float.NaN;
+    private float cachedMaxYForThisFrame = Float.NaN;
+    private void calcYRangeForThisFrame() {
+        if (!Float.isNaN(this.cachedMinYForThisFrame) && !Float.isNaN(this.cachedMaxYForThisFrame)) return;
 
         float minYToDraw = this.minY;
         float maxYToDraw = this.maxY;
@@ -218,12 +216,33 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             this.updateUnitYNextFrame = false;
         }
 
+        this.cachedMinYForThisFrame = minYToDraw;
+        this.cachedMaxYForThisFrame = maxYToDraw;
+    }
+
+    private float unitXForReferenceLine = Float.NaN;
+    private float unitYForReferenceLine = Float.NaN;
+    private boolean updateUnitYNextFrame = false;
+    private long lastInterpolationTime = 0;
+    private void drawReferenceLine(GuiGraphics guiGraphics, float horizontalAxisNameWidth, float verticalAxisNameHeight) {
+        PoseStack pose = guiGraphics.pose();
+
+        int color = 0x7F000000 | this.parent.getColor();
+
+        if (Float.isNaN(unitXForReferenceLine)) {
+            this.unitXForReferenceLine = calcTick(this.minX, this.maxX, this.maxHorizontalTick);
+        }
+
+        calcYRangeForThisFrame();
+        float minYToDraw = this.cachedMinYForThisFrame;
+        float maxYToDraw = this.cachedMaxYForThisFrame;
+
         Font font = Minecraft.getInstance().font;
         int lineHeight = font.lineHeight;
         float quarterLineHeight = 0.25f * lineHeight;
         float vAxisTagLimit = quarterLineHeight + verticalAxisNameHeight + 0.25f;
         float width = (float) Minecraft.getInstance().getWindow().getGuiScale() * 0.0625f;
-        for (float i = this.minX; i < this.maxX; i += this.unitXForReferenceLine) {
+        for (float i = chooseStartTick(this.minX, this.unitXForReferenceLine); i < this.maxX; i += this.unitXForReferenceLine) {
             float curX = (i - this.minX) / (this.maxX - this.minX) * this.width;
             if (curX >= this.width - 1.25f) continue;
             fill(guiGraphics, curX, 0, curX + width, this.height, color);
@@ -236,11 +255,14 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             guiGraphics.drawString(font, toDraw, 0, -lineHeight - 1, this.parent.getColor(), false);
             pose.popPose();
         }
-        for (float j = minYToDraw + this.unitYForReferenceLine; j < maxYToDraw; j += this.unitYForReferenceLine) {
+        final float mysteriousConstant = this.height - 1.25f - font.lineHeight * 0.25f;
+        for (float j = chooseStartTick(minYToDraw, this.unitYForReferenceLine); j < maxYToDraw; j += this.unitYForReferenceLine) {
             float curY = (maxYToDraw - j) / (maxYToDraw - minYToDraw) * this.height;
             if (curY <= 0.25f) continue;
+            if (curY > this.height - 1.25f) continue;
             fill(guiGraphics, 0, curY, this.width, curY + width, color);
 
+            if (curY > mysteriousConstant) continue;
             if (curY < vAxisTagLimit) continue;
             pose.pushPose();
             pose.translate(1, curY, 0);
@@ -289,8 +311,37 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         return this;
     }
 
-    public DiagramGraphElement scatterDiagram(Deque<Vec2> location) {
+    /**
+     * Add a scatter diagram to the {@link DiagramGraphElement}.
+     * 
+     * @param location A {@link Deque}&lt;{@link DataPoint}&gt; to storage the points to draw.
+     *                 The field {@link DataPoint#x} is for the x-coordinate of the point,
+     *                 while the field {@link DataPoint#y} is for the y-coordinate of the point.
+     * 
+     *                 <p>
+     *                 Remember to <b>keep the reference</b> of this Deque.
+     *                 You can directly add data to this Deque,
+     *                 but make sure the x of the DataaPoints are sorted in acsending order.
+     *                 Points whose x is to small to be drawn on the screen will be removed by {@link Deque#pollFirst}.
+     * 
+     *                 <p>
+     *                 Usually, inserting data and rendering data run on the same thread (Render Thread).
+     *                 If you wish to insert data on a different thread, pass in a concurrent Deque.
+     * @return The DiagramGraphElement itself
+     */
+    public DiagramGraphElement scatterDiagram(Deque<DataPoint> location) {
         this.diagrams.addLast(new ScatterDiagram(location));
+        return this;
+    }
+
+    /**
+     * Add a histogram to the {@link DiagramGraphElement}.
+     * 
+     * @param location A {@link Deque}&lt;{@link HistogramBar}&gt; to storage the bars to draw.
+     * @return
+     */
+    public DiagramGraphElement histogram(Deque<HistogramBar> location) {
+        this.diagrams.addLast(new Histogram(location));
         return this;
     }
 
@@ -359,30 +410,32 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         return result;
     }
 
+    private static float chooseStartTick(float min, float tick) {
+        return (float) Math.ceil(min / tick) * tick;
+    }
+
     private static abstract class Diagram {
-        Deque<Vec2> data;
         float minY;
         float maxY;
         public abstract void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX);
-        public Vec2 processPoint(DiagramGraphElement parent, float minX, float maxX, Vec2 point) {
-            float x = point.x;
-            float y = point.y;
-
-            float transformedX = ((x - minX) / (maxX - minX) * (parent.width - 1));
-            float transformedY = ((1 - (y - parent.minY) / (parent.maxY - parent.minY)) * (parent.height - 1));
-
-            return new Vec2(transformedX, transformedY);
+        public float transformX(DiagramGraphElement parent, float minX, float maxX, float x) {
+            return ((x - minX) / (maxX - minX) * (parent.width));
         }
-        protected void cleanOldData(float minX) {
-            while (!this.data.isEmpty() && this.data.peekFirst().x < minX) {
-                this.data.pollFirst();
-            }
+        public float transformY(DiagramGraphElement parent, float y) {
+            return ((1 - (y - parent.cachedMinYForThisFrame) / (parent.cachedMaxYForThisFrame - parent.cachedMinYForThisFrame)) * (parent.height));
         }
     }
 
+    public static record DataPoint(float x, float y) {}
     private static class ScatterDiagram extends Diagram {
-        public ScatterDiagram(Deque<Vec2> data) {
+        Deque<DataPoint> data;
+        public ScatterDiagram(Deque<DataPoint> data) {
             this.data = data;
+        }
+        void cleanOldData(float minX) {
+            while (!this.data.isEmpty() && this.data.peekFirst().x < minX) {
+                this.data.pollFirst();
+            }
         }
         @Override
         public void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX) {
@@ -400,13 +453,12 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             float half = 0.5f;
             builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-            for (Vec2 point : this.data) {
+            for (DataPoint point : this.data) {
                 if (point.y < minY) minY = point.y;
                 if (point.y > maxY) maxY = point.y;
-                Vec2 transformed = this.processPoint(parent, minX, maxX, point);
 
-                float x = transformed.x;
-                float y = transformed.y + half;
+                float x = this.transformX(parent, minX, maxX, point.x);
+                float y = this.transformY(parent, point.y);
 
                 if (x < 0f) break;
                 if (x > (float) parent.width) continue;
@@ -416,6 +468,96 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
                 builder.vertex(pose.last().pose(), x + half, y + half, 0).color(color).endVertex();
                 builder.vertex(pose.last().pose(), x + half, y - half, 0).color(color).endVertex();
                 builder.vertex(pose.last().pose(), x - half, y - half, 0).color(color).endVertex();
+            }
+
+            tesselator.end();
+            pose.popPose();
+
+            this.minY = minY;
+            this.maxY = maxY;
+        }
+    }
+
+    public static record HistogramBar(float leftX, float rightX, float y) {
+        public float middleX() {
+            return (this.leftX + this.rightX) * 0.5f;
+        }
+    }
+    private static class Histogram extends Diagram {
+        Deque<HistogramBar> data;
+        public Histogram(Deque<HistogramBar> data) {
+            this.data = data;
+        }
+        void cleanOldData(float minX) {
+            while (!this.data.isEmpty() && this.data.peekFirst().rightX < minX) {
+                this.data.pollFirst();
+            }
+        }
+        @Override
+        public void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX) {
+            int color = 0xFF000000 | parent.parent.getColor();
+            int colorInner = 0x7F000000 | parent.parent.getColor();
+            float minY = Float.POSITIVE_INFINITY;
+            float maxY = Float.NEGATIVE_INFINITY;
+            this.cleanOldData(minX);
+
+            PoseStack pose = guiGraphics.pose();
+            Matrix4f matrix = pose.last().pose();
+            pose.pushPose();
+
+            RenderSystem.setShader(GameRenderer::getRendertypeGuiShader);
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            Tesselator tesselator = Tesselator.getInstance();
+            BufferBuilder builder = tesselator.getBuilder();
+            builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            float y0 = this.transformY(parent, 0);
+
+            for (HistogramBar bar : this.data) {
+                if (bar.y < minY) minY = bar.y;
+                if (bar.y > maxY) maxY = bar.y;
+
+                float leftX = this.transformX(parent, minX, maxX, bar.leftX);
+                float rightX = this.transformX(parent, minX, maxX, bar.rightX);
+                float y = this.transformY(parent, bar.y);
+
+                if (rightX < 0f) break;
+                if (leftX > (float) parent.width) continue;
+                float smallerY = y > y0 ? y0 : y;
+                float largerY = smallerY == y ? y0 : y;
+                largerY = largerY > parent.height - 1 ? parent.height - 1 : largerY;
+                smallerY = smallerY < 0 ? 0 : smallerY;
+                float leftXToDraw = leftX < 0 ? 0 : leftX;
+                float rightXToDraw = rightX > parent.width - 1 ? parent.width - 1 : rightX;
+
+                // Inner
+                builder.vertex(matrix, leftXToDraw, smallerY, 0).color(colorInner).endVertex();
+                builder.vertex(matrix, leftXToDraw, largerY, 0).color(colorInner).endVertex();
+                builder.vertex(matrix, rightXToDraw, largerY, 0).color(colorInner).endVertex();
+                builder.vertex(matrix, rightXToDraw, smallerY, 0).color(colorInner).endVertex();
+
+                // Left border
+                if (leftX > 0.0f && leftX < parent.width-1) {
+                    builder.vertex(matrix, leftXToDraw, smallerY, 0).color(color).endVertex();
+                    builder.vertex(matrix, leftXToDraw, largerY, 0).color(color).endVertex();
+                    builder.vertex(matrix, leftXToDraw + 0.25f, largerY, 0).color(color).endVertex();
+                    builder.vertex(matrix, leftXToDraw + 0.25f, smallerY, 0).color(color).endVertex();
+                }
+                // Right border
+                if (rightX > 0 && rightX < parent.width - 1) {
+                    builder.vertex(matrix, rightXToDraw - 0.25f, smallerY, 0).color(color).endVertex();
+                    builder.vertex(matrix, rightXToDraw - 0.25f, largerY, 0).color(color).endVertex();
+                    builder.vertex(matrix, rightXToDraw, largerY, 0).color(color).endVertex();
+                    builder.vertex(matrix, rightXToDraw, smallerY, 0).color(color).endVertex();
+                }
+                // Horizontal border
+                if (y > 0.0f && y < parent.height - 1) {
+                    float tempY = bar.y >= 0.0f ? y : y - 0.25f;
+                    builder.vertex(matrix, leftXToDraw, tempY, 0).color(color).endVertex();
+                    builder.vertex(matrix, leftXToDraw, tempY + 0.25f, 0).color(color).endVertex();
+                    builder.vertex(matrix, rightXToDraw, tempY + 0.25f, 0).color(color).endVertex();
+                    builder.vertex(matrix, rightXToDraw, tempY, 0).color(color).endVertex();
+                }
             }
 
             tesselator.end();

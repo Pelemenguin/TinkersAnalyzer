@@ -5,7 +5,6 @@ import java.util.Deque;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.phys.Vec2;
 import pelemenguin.tinkersanalyzer.client.graph.element.DiagramGraphElement;
 import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerGraphs;
 import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerModifiers;
@@ -16,7 +15,7 @@ public class DPSGraph extends AnalyzerGraph {
     private static DPSGraph INSTANCE = null;
     public long timeOrigin = -1;
 
-    public Deque<Vec2> recentDamages = new ArrayDeque<>();
+    public Deque<DiagramGraphElement.HistogramBar> recentDamages = new ArrayDeque<>();
 
     private DPSGraph(CompoundTag tag) {
         super(tag);
@@ -27,7 +26,7 @@ public class DPSGraph extends AnalyzerGraph {
                 .timeAsHorizontalAxis()
                 .timeOrigin(() -> this.timeOrigin)
                 .domain(-60.0f, 0.0f)
-                .scatterDiagram(recentDamages)
+                .histogram(recentDamages)
                 .autoYRange(0f, 2f, true, false)
             );
     }
