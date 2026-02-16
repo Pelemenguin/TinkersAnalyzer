@@ -43,6 +43,7 @@ public class DPSGraph extends AnalyzerGraph {
                 .domain(-TIME_RANGE, 0.0f)
                 .histogram(this.recentDamages)
                 .lineGraph(this.averageDps)
+                .colorLastDiagram(0xF7005A)
                 .autoYRange(0f, 2f, true, false)
             );
     }
@@ -67,7 +68,6 @@ public class DPSGraph extends AnalyzerGraph {
             float x = bar.middleX() + instance.timeOrigin - gameTime;
             if (x < - TIME_RANGE) continue;
             if (x > 0) continue;
-//            float weight = (1.0f + x / TIME_RANGE) * 2.0f;
             sum += bar.y();
         }
         float originalDps = instance.dpsArray[(int) (gameTime % TIME_RANGE)];

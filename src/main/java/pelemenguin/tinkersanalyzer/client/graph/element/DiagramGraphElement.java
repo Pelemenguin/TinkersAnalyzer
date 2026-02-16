@@ -354,6 +354,11 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         return this;
     }
 
+    public DiagramGraphElement colorLastDiagram(int color) {
+        this.diagrams.getLast().color = color;
+        return this;
+    }
+
     /**
      * Automatically set the diagram's vertical axis' range by last diagram added.
      * @param maxLowerBound The lower bound of the vertical axis cannot go greater than this value.
@@ -427,6 +432,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         float minY;
         float maxY;
         float scale = 1.0f;
+        int color = -1;
         public abstract void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX);
         public float transformX(DiagramGraphElement parent, float minX, float maxX, float x) {
             return ((x - minX) / (maxX - minX) * (parent.width));
@@ -449,7 +455,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         }
         @Override
         public void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX) {
-            int color = 0xFF000000 | parent.parent.getColor();
+            int color = 0xFF000000 | (this.color < 0 ? parent.parent.getColor() : this.color);
             float minY = Float.POSITIVE_INFINITY;
             float maxY = Float.NEGATIVE_INFINITY;
             this.cleanOldData(minX);
@@ -505,8 +511,8 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         }
         @Override
         public void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX) {
-            int color = 0xFF000000 | parent.parent.getColor();
-            int colorInner = 0x7F000000 | parent.parent.getColor();
+            int colorInner = 0x7F000000 | (this.color < 0 ? parent.parent.getColor() : this.color);
+            int color = 0xFF000000 | colorInner;
             float minY = Float.POSITIVE_INFINITY;
             float maxY = Float.NEGATIVE_INFINITY;
             this.cleanOldData(minX);
@@ -682,7 +688,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         }
         @Override
         public void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX) {
-            int color = 0xFF000000 | parent.parent.getColor();
+            int color = 0xFF000000 | (this.color < 0 ? parent.parent.getColor() : this.color);
             float minY = Float.POSITIVE_INFINITY;
             float maxY = Float.NEGATIVE_INFINITY;
             this.cleanOldData(minX);
@@ -705,7 +711,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
                     float x = this.transformX(parent, minX, maxX, point.x);
                     float y = this.transformY(parent, point.y);
 
-                    this.connect(lastX, lastY, x, y, 0, parent.width, 0, parent.height, matrix, builder, color);
+                    this.connect(lastX, lastY, x, y, 1, parent.width, 0, parent.height - 1, matrix, builder, color);
                     if (point.y < minY) minY = point.y;
                     if (point.y > maxY) maxY = point.y;
 
