@@ -17,6 +17,7 @@ import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
 import pelemenguin.tinkersanalyzer.client.graph.DPSGraph;
+import pelemenguin.tinkersanalyzer.client.graph.element.DiagramGraphElement.DataPoint;
 import pelemenguin.tinkersanalyzer.client.graph.element.DiagramGraphElement.HistogramBar;
 import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerGraphs;
 import pelemenguin.tinkersanalyzer.content.network.TinkersAnalyzerNetwork;
@@ -90,18 +91,25 @@ public class DPSAnalyzerModifier extends Modifier implements DisplayAnalyzerGrap
                 DPSGraph dpsGraph = DPSGraph.getInstance();
                 // TODO: Change to a larger interval after test
                 long diff = gameTime - dpsGraph.timeOrigin;
-                if (dpsGraph.timeOrigin < 0 || diff > 60) {
+                if (dpsGraph.timeOrigin < 0 || diff > 18000) {
                     dpsGraph.timeOrigin = gameTime;
 
                     Deque<HistogramBar> recentDamages = dpsGraph.recentDamages;
+                    Deque<DataPoint> dpsDeque = dpsGraph.dpsDeque;
                     int pointCount = recentDamages.size();
+                    int dpsDequeSize = dpsDeque.size();
                     for (int i = 0; i < pointCount; i++) {
                         HistogramBar original = recentDamages.pollFirst();
                         recentDamages.addLast(new HistogramBar(original.leftX() - diff, original.rightX() - diff, original.y()));
                     }
+                    for (int i = 0; i < dpsDequeSize; i++) {
+                        DataPoint original = dpsDeque.pollFirst();
+                        dpsDeque.addLast(new DataPoint(original.x() - diff, original.y()));
+                    }
                 }
                 float relative = gameTime - dpsGraph.timeOrigin;
-                DPSGraph.getInstance().recentDamages.addLast(new HistogramBar(relative - 2, relative + 2, message.getDamage()));
+                dpsGraph.recentDamages.addLast(new HistogramBar(relative - 2, relative + 2, message.getDamage()));
+                dpsGraph.dpsDeque.addLast(new DataPoint(relative, message.getDamage()));
             });
             ctx.setPacketHandled(true);
         }

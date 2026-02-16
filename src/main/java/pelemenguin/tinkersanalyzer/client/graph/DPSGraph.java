@@ -16,6 +16,7 @@ public class DPSGraph extends AnalyzerGraph {
     public long timeOrigin = -1;
 
     public Deque<DiagramGraphElement.HistogramBar> recentDamages = new ArrayDeque<>();
+    public Deque<DiagramGraphElement.DataPoint> dpsDeque = new ArrayDeque<>();
 
     private DPSGraph(CompoundTag tag) {
         super(tag);
@@ -27,6 +28,7 @@ public class DPSGraph extends AnalyzerGraph {
                 .timeOrigin(() -> this.timeOrigin)
                 .domain(-60.0f, 0.0f)
                 .histogram(recentDamages)
+                .lineGraph(dpsDeque)
                 .autoYRange(0f, 2f, true, false)
             );
     }

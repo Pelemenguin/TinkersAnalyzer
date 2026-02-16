@@ -22,7 +22,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec2;
 import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
 
 public class DiagramGraphElement extends AnalyzerGraphElement {
@@ -345,6 +344,11 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         return this;
     }
 
+    public DiagramGraphElement lineGraph(Deque<DataPoint> location) {
+        this.diagrams.addLast(new LineGraph(location));
+        return this;
+    }
+
     /**
      * Automatically set the diagram's vertical axis' range by last diagram added.
      * @param maxLowerBound The lower bound of the vertical axis cannot go greater than this value.
@@ -558,6 +562,159 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
                     builder.vertex(matrix, rightXToDraw, tempY + 0.25f, 0).color(color).endVertex();
                     builder.vertex(matrix, rightXToDraw, tempY, 0).color(color).endVertex();
                 }
+            }
+
+            tesselator.end();
+            pose.popPose();
+
+            this.minY = minY;
+            this.maxY = maxY;
+        }
+    }
+
+    private static class LineGraph extends Diagram {
+        private Deque<DataPoint> data;
+        private static final DataPoint RIGHT_INFINITY = new DataPoint(Float.POSITIVE_INFINITY, 0);
+        public LineGraph(Deque<DataPoint> data) {
+            this.data = data;
+            this.data.addFirst(new DataPoint(Float.NEGATIVE_INFINITY, 0));
+        }
+        void cleanOldData(float minX) {
+            DataPoint leftmost = null;
+            while (!this.data.isEmpty() && this.data.peekFirst().x < minX) {
+                leftmost = this.data.pollFirst();
+            }
+            if (leftmost == null) return;
+            this.data.addFirst(leftmost);
+        }
+        // Return a `t` for y-axis tick calculation
+        float connect(float x1, float y1, float x2, float y2, float minX, float maxX, float minY, float maxY, Matrix4f matrix, BufferBuilder builder, int color) {
+            float startX;
+            float startY;
+            float endX;
+            float endY;
+            float result = Float.NaN;
+
+            if (Float.isInfinite(x1)) {
+                if (x2 == x1) {
+                    return Float.NaN;
+                } else if (x2 == -x1) {
+                    startX = minX;
+                    endX = maxX;
+                    startY = endY = (y1 + y2) * 0.5f;
+                } else {
+                    if (y2 > maxY || y2 < minY) {
+                        return Float.NaN;
+                    }
+                    startX = x1 > 0 ? maxX : minX;
+                    endX = Mth.clamp(x2, minX, maxX);
+                    startY = endY = y2;
+                }
+            } else if (Float.isInfinite(x2)) {
+                if (y1 > maxY || y1 < minY) {
+                    return Float.NaN;
+                }
+                startX = Mth.clamp(x1, minX, maxX);
+                endX = x2 > 0 ? maxX : minX;
+                startY = endY = y1;
+            } else {
+                float dx = x2 - x1;
+                float dy = y2 - y1;
+
+                // Consider line l: p1 + t * (p2 - p1)
+                float minT = 0.0f;
+                float maxT = 1.0f;
+
+                // Left border: x1 + t * dx >= minX
+                // Right border: x1 + t * dx <= maxX
+                if (dx > 0) {
+                    minT = Math.max(minT, (minX - x1) / dx);
+                    maxT = Math.min(maxT, (maxX - x1) / dx);
+                } else if (dx < 0) {
+                    maxT = Math.min(maxT, (minX - x1) / dx);
+                    minT = Math.max(minT, (maxX - x1) / dx);
+                } else {
+                    if (x1 < minX || x1 > maxX) {
+                        return Float.NaN;
+                    }
+                }
+
+                // Top border: y1 + t * dy >= minY
+                // Bottom border: y1 + t * dy <= maxY
+                if (dy > 0) {
+                    minT = Math.max(minT, (minY - y1) / dy);
+                    maxT = Math.min(maxT, (maxY - y1) / dy);
+                    result = Math.max(minT, maxT);
+                } else if (dy < 0) {
+                    maxT = Math.min(maxT, (minY - y1) / dy);
+                    minT = Math.max(minT, (maxY - y1) / dy);
+                    result = Math.min(minT, maxT);
+                } else {
+                    if (y1 < minY || y1 > maxY) {
+                        return Float.NaN;
+                    }
+                }
+
+                if (maxT <= minT) return Float.NaN;
+
+                startX = x1 + minT * dx;
+                startY = y1 + minT * dy;
+                endX = x1 + maxT * dx;
+                endY = y1 + maxT * dy;
+            }
+
+            if (endY < startY) {
+                float temp = endY;
+                endY = startY;
+                startY = temp;
+                temp = endX;
+                endX = startX;
+                startX = temp;
+            }
+
+            float resultDx = endX - startX;
+            float resultDy = endY - startY;
+
+            builder.vertex(matrix, startX, startY, 0).color(color).normal(resultDx, resultDy, 0).endVertex();
+            builder.vertex(matrix, endX, endY, 0).color(color).normal(resultDx, resultDy, 0).endVertex();
+            return result;
+        }
+        @Override
+        public void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX) {
+            int color = 0xFF000000 | parent.parent.getColor();
+            float minY = Float.POSITIVE_INFINITY;
+            float maxY = Float.NEGATIVE_INFINITY;
+            this.cleanOldData(minX);
+
+            PoseStack pose = guiGraphics.pose();
+            Matrix4f matrix = pose.last().pose();
+            pose.pushPose();
+
+            RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+            RenderSystem.lineWidth(2.0f);
+            Tesselator tesselator = Tesselator.getInstance();
+            BufferBuilder builder = tesselator.getBuilder();
+            builder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+
+            synchronized (this.data) {
+                float lastUntransformedY = Float.NEGATIVE_INFINITY;
+                float lastX = this.transformX(parent, minX, maxX, Float.NEGATIVE_INFINITY);
+                float lastY = this.transformY(parent, 0);
+                this.data.addLast(RIGHT_INFINITY);
+                for (DataPoint point : this.data) {
+                    float x = this.transformX(parent, minX, maxX, point.x);
+                    float y = this.transformY(parent, point.y);
+
+                    float curY = this.connect(lastX, lastY, x, y, 0, parent.width, 0, parent.height, matrix, builder, color)
+                            * (point.y - lastUntransformedY) + lastUntransformedY;
+                    if (curY < minY) minY = curY;
+                    if (curY > maxY) maxY = curY;
+
+                    lastUntransformedY = point.y;
+                    lastX = x;
+                    lastY = y;
+                }
+                this.data.removeLast();
             }
 
             tesselator.end();
