@@ -112,8 +112,8 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         float maxYFromDiagrams = this.minMaxY;
         for (Diagram diagram : this.diagrams) {
             diagram.draw(guiGraphics, this, minX, maxX);
-            float curMinY = diagram.minY * VERTICAL_AXIS_BOUND_MULIPLIER;
-            float curMaxY = diagram.maxY * VERTICAL_AXIS_BOUND_MULIPLIER;
+            float curMinY = diagram.minY * VERTICAL_AXIS_BOUND_MULIPLIER * diagram.scale;
+            float curMaxY = diagram.maxY * VERTICAL_AXIS_BOUND_MULIPLIER * diagram.scale;
             if (!this.fixMinY && curMinY < minYFromDiagrams && Float.isFinite(curMinY)) minYFromDiagrams = curMinY;
             if (!this.fixMaxY && curMaxY > maxYFromDiagrams && Float.isFinite(curMaxY)) maxYFromDiagrams = curMaxY;
         }
@@ -349,6 +349,11 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         return this;
     }
 
+    public DiagramGraphElement scaleLastDiagram(float scale) {
+        this.diagrams.getLast().scale = scale;
+        return this;
+    }
+
     /**
      * Automatically set the diagram's vertical axis' range by last diagram added.
      * @param maxLowerBound The lower bound of the vertical axis cannot go greater than this value.
@@ -421,12 +426,13 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
     private static abstract class Diagram {
         float minY;
         float maxY;
+        float scale = 1.0f;
         public abstract void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX);
         public float transformX(DiagramGraphElement parent, float minX, float maxX, float x) {
             return ((x - minX) / (maxX - minX) * (parent.width));
         }
         public float transformY(DiagramGraphElement parent, float y) {
-            return ((1 - (y - parent.cachedMinYForThisFrame) / (parent.cachedMaxYForThisFrame - parent.cachedMinYForThisFrame)) * (parent.height));
+            return ((1 - (y - parent.cachedMinYForThisFrame) / (parent.cachedMaxYForThisFrame - parent.cachedMinYForThisFrame) * this.scale) * (parent.height));
         }
     }
 
@@ -587,24 +593,22 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             if (leftmost == null) return;
             this.data.addFirst(leftmost);
         }
-        // Return a `t` for y-axis tick calculation
-        float connect(float x1, float y1, float x2, float y2, float minX, float maxX, float minY, float maxY, Matrix4f matrix, BufferBuilder builder, int color) {
+        void connect(float x1, float y1, float x2, float y2, float minX, float maxX, float minY, float maxY, Matrix4f matrix, BufferBuilder builder, int color) {
             float startX;
             float startY;
             float endX;
             float endY;
-            float result = Float.NaN;
 
             if (Float.isInfinite(x1)) {
                 if (x2 == x1) {
-                    return Float.NaN;
+                    return;
                 } else if (x2 == -x1) {
                     startX = minX;
                     endX = maxX;
                     startY = endY = (y1 + y2) * 0.5f;
                 } else {
                     if (y2 > maxY || y2 < minY) {
-                        return Float.NaN;
+                        return;
                     }
                     startX = x1 > 0 ? maxX : minX;
                     endX = Mth.clamp(x2, minX, maxX);
@@ -612,7 +616,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
                 }
             } else if (Float.isInfinite(x2)) {
                 if (y1 > maxY || y1 < minY) {
-                    return Float.NaN;
+                    return;
                 }
                 startX = Mth.clamp(x1, minX, maxX);
                 endX = x2 > 0 ? maxX : minX;
@@ -635,7 +639,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
                     minT = Math.max(minT, (maxX - x1) / dx);
                 } else {
                     if (x1 < minX || x1 > maxX) {
-                        return Float.NaN;
+                        return;
                     }
                 }
 
@@ -644,18 +648,16 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
                 if (dy > 0) {
                     minT = Math.max(minT, (minY - y1) / dy);
                     maxT = Math.min(maxT, (maxY - y1) / dy);
-                    result = Math.max(minT, maxT);
                 } else if (dy < 0) {
                     maxT = Math.min(maxT, (minY - y1) / dy);
                     minT = Math.max(minT, (maxY - y1) / dy);
-                    result = Math.min(minT, maxT);
                 } else {
                     if (y1 < minY || y1 > maxY) {
-                        return Float.NaN;
+                        return;
                     }
                 }
 
-                if (maxT <= minT) return Float.NaN;
+                if (maxT <= minT) return;
 
                 startX = x1 + minT * dx;
                 startY = y1 + minT * dy;
@@ -677,7 +679,6 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
 
             builder.vertex(matrix, startX, startY, 0).color(color).normal(resultDx, resultDy, 0).endVertex();
             builder.vertex(matrix, endX, endY, 0).color(color).normal(resultDx, resultDy, 0).endVertex();
-            return result;
         }
         @Override
         public void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX) {
@@ -697,7 +698,6 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             builder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
 
             synchronized (this.data) {
-                float lastUntransformedY = Float.NEGATIVE_INFINITY;
                 float lastX = this.transformX(parent, minX, maxX, Float.NEGATIVE_INFINITY);
                 float lastY = this.transformY(parent, 0);
                 this.data.addLast(RIGHT_INFINITY);
@@ -705,12 +705,10 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
                     float x = this.transformX(parent, minX, maxX, point.x);
                     float y = this.transformY(parent, point.y);
 
-                    float curY = this.connect(lastX, lastY, x, y, 0, parent.width, 0, parent.height, matrix, builder, color)
-                            * (point.y - lastUntransformedY) + lastUntransformedY;
-                    if (curY < minY) minY = curY;
-                    if (curY > maxY) maxY = curY;
+                    this.connect(lastX, lastY, x, y, 0, parent.width, 0, parent.height, matrix, builder, color);
+                    if (point.y < minY) minY = point.y;
+                    if (point.y > maxY) maxY = point.y;
 
-                    lastUntransformedY = point.y;
                     lastX = x;
                     lastY = y;
                 }
