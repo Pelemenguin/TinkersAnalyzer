@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
 import pelemenguin.tinkersanalyzer.client.graph.element.DiagramGraphElement;
+import pelemenguin.tinkersanalyzer.client.graph.element.TaggedTextGraphElement;
 import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerGraphs;
 import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerModifiers;
 import slimeknights.mantle.client.ResourceColorManager;
@@ -22,30 +23,63 @@ import slimeknights.mantle.client.ResourceColorManager;
 public class DPSGraph extends AnalyzerGraph {
 
     private static final int TIME_RANGE = 100;
+    private static final int DPS_COLOR = 0xF7005A;
+    private static final int AVERAGE_DPS_COLOR = 0xFFD238;
 
     private static DPSGraph INSTANCE = null;
     public long timeOrigin = -1;
 
     public Deque<DiagramGraphElement.HistogramBar> recentDamages = new ArrayDeque<>();
-    public float[] dpsArray = new float[TIME_RANGE];
+    public Deque<DiagramGraphElement.DataPoint> dps = new ArrayDeque<>();
+    private float[] cachedDps = new float[TIME_RANGE];
+    private float cachedAverageDps = 0.0f;
     public Deque<DiagramGraphElement.DataPoint> averageDps = new ArrayDeque<>();
 
-    private float cachedAverageDps = 0.0f;
+    private float lastDps = 0.0f;
+    private float lastAverageDps = 0.0f;
 
     private DPSGraph(CompoundTag tag) {
         super(tag);
         this.addElement(new DiagramGraphElement(this, 64, 48)
                 .horizontalAxisName(Component.literal("Time"))
                 .verticalAxisName(Component.literal("Damage / DPS"))
-                .labelHorizontalTick((t) -> "%.2gs".formatted(t / 20))
+                .labelHorizontalTick((t) -> "%.1f".formatted(t / 20.0f) + "s")
                 .timeAsHorizontalAxis()
                 .timeOrigin(() -> this.timeOrigin)
                 .domain(-TIME_RANGE, 0.0f)
                 .histogram(this.recentDamages)
+                .lineGraph(this.dps)
+                .colorLastDiagram(DPS_COLOR)
                 .lineGraph(this.averageDps)
-                .colorLastDiagram(0xF7005A)
+                .colorLastDiagram(AVERAGE_DPS_COLOR)
                 .autoYRange(0f, 2f, true, false)
             );
+
+        TaggedTextGraphElement lastDamage = new TaggedTextGraphElement(() -> Component.literal(
+                this.recentDamages.isEmpty() ? "-" : DiagramGraphElement.DEFAULT_LABEL_FORMAT.getTickLabel(this.recentDamages.peekLast().y())
+            ))
+            .colored(this.getColor())
+            .tagBelow(Component.literal("LD"));
+        lastDamage.x = 68;
+        lastDamage.y = 0;
+        lastDamage.scale = 2.0f;
+        this.addElement(lastDamage);
+
+        TaggedTextGraphElement curDps = new TaggedTextGraphElement(() -> Component.literal(DiagramGraphElement.DEFAULT_LABEL_FORMAT.getTickLabel(this.lastDps)))
+            .colored(DPS_COLOR)
+            .tagBelow(Component.literal("DPS"));
+        curDps.x = 68;
+        curDps.y = 16;
+        curDps.scale = 2.0f;
+        this.addElement(curDps);
+
+        TaggedTextGraphElement averageDps = new TaggedTextGraphElement(() -> Component.literal(DiagramGraphElement.DEFAULT_LABEL_FORMAT.getTickLabel(this.lastAverageDps)))
+            .colored(AVERAGE_DPS_COLOR)
+            .tagBelow(Component.literal("Avg. DPS"));
+        averageDps.x = 68;
+        averageDps.y = 32;
+        averageDps.scale = 2.0f;
+        this.addElement(averageDps);
     }
 
     public static DPSGraph getInstance() {
@@ -68,22 +102,37 @@ public class DPSGraph extends AnalyzerGraph {
             float x = bar.middleX() + instance.timeOrigin - gameTime;
             if (x < - TIME_RANGE) continue;
             if (x > 0) continue;
-            sum += bar.y();
+            float weight = x + TIME_RANGE;
+            weight *= weight;
+            sum += bar.y() * weight;
         }
-        float originalDps = instance.dpsArray[(int) (gameTime % TIME_RANGE)];
-        float curDps = sum * 20.0f / TIME_RANGE;
-        if (gameTime % 18000 == 0) {
-            // Recalculate
+        int x = (int) (gameTime - instance.timeOrigin);
+        float dps = sum * 60.0f / (TIME_RANGE * TIME_RANGE * TIME_RANGE);
+        instance.dps.addLast(new DiagramGraphElement.DataPoint(x, dps));
+
+        // Force recalculate
+        if (gameTime % TIME_RANGE == 0) {
             sum = 0;
-            for (float f : instance.dpsArray) {
+            instance.cachedDps[(int) (gameTime % TIME_RANGE)] = dps;
+            for (float f : instance.cachedDps) {
                 sum += f;
             }
             instance.cachedAverageDps = sum / TIME_RANGE;
         } else {
-            instance.cachedAverageDps += (curDps - originalDps) / TIME_RANGE;
+            float diff = dps - instance.cachedDps[(int) (gameTime % TIME_RANGE)];
+            instance.cachedDps[(int) (gameTime % TIME_RANGE)] = dps;
+            instance.cachedAverageDps += diff / TIME_RANGE;
         }
-        instance.dpsArray[(int) (gameTime % TIME_RANGE)] = curDps;
-        instance.averageDps.addLast(new DiagramGraphElement.DataPoint(gameTime - instance.timeOrigin, instance.cachedAverageDps));
+        instance.averageDps.addLast(new DiagramGraphElement.DataPoint(x, instance.cachedAverageDps));
+
+        if (gameTime % 10 == 0) {
+            if (!instance.dps.isEmpty()) {
+                instance.lastDps = instance.dps.peekLast().y();
+            }
+            if (!instance.averageDps.isEmpty()) {
+                instance.lastAverageDps = instance.averageDps.peekLast().y();
+            }
+        }
     }
 
 }

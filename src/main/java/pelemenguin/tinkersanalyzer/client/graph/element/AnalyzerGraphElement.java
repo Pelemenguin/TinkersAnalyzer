@@ -11,6 +11,7 @@ public abstract class AnalyzerGraphElement {
 
     public int x;
     public int y;
+    public float scale = 1.0f;
 
     /**
      * Draw the content of the GraphElement.
@@ -26,10 +27,13 @@ public abstract class AnalyzerGraphElement {
      */
     public void render(GuiGraphics guiGraphics) {
         PoseStack pose = guiGraphics.pose();
+        pose.pushPose();
 
         pose.translate(this.x, this.y, 0);
+        pose.scale(scale, scale, 1);
         this.draw(guiGraphics);
         pose.translate(-this.x, -this.y, 0);
+        pose.popPose();
     }
 
     /**

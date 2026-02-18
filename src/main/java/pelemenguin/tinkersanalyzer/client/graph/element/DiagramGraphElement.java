@@ -5,6 +5,7 @@ import java.util.Deque;
 import java.util.function.LongSupplier;
 
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL20;
 import org.slf4j.Logger;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -27,8 +28,26 @@ import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
 public class DiagramGraphElement extends AnalyzerGraphElement {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    public static final AxisTickLabel DEFAULT_LABEL_FORMAT = (x) -> {
+        float abs = Mth.abs(x);
+        if (abs >= 1e7f) {
+            return "%.1E".formatted(x);
+        } else if (abs >= 1e3f) {
+            return "%d".formatted((int) x);
+        } else if (abs >= 1e2f) {
+            return "%.1f".formatted(x);
+        } else if (abs >= 1) {
+            return "%.2f".formatted(x);
+        } else if (abs >= 0.01f) {
+            return "%.3f".formatted(x);
+        } else if (abs < 5e-5f) {
+            return "0";
+        } else {
+            return "%.4f".formatted(x);
+        }
+    };
 
-    private static final AxisTickLabel DEFAULT_TICK_LABEL = (x) -> "%.2g".formatted(x);
+    private static final AxisTickLabel DEFAULT_TICK_LABEL = DEFAULT_LABEL_FORMAT;
     private static final float SMOOTH_FACTOR = 0.1f;
     private static final float VERTICAL_AXIS_BOUND_MULIPLIER = 1.2f;
 
@@ -698,6 +717,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             pose.pushPose();
 
             RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+            GL20.glEnable(GL20.GL_LINE_SMOOTH);
             RenderSystem.lineWidth(2.0f);
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder builder = tesselator.getBuilder();
@@ -722,6 +742,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             }
 
             tesselator.end();
+            GL20.glDisable(GL20.GL_LINE_SMOOTH);
             pose.popPose();
 
             this.minY = minY;

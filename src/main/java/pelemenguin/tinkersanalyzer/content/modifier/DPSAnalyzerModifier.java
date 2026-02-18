@@ -100,9 +100,15 @@ public class DPSAnalyzerModifier extends Modifier implements DisplayAnalyzerGrap
                         HistogramBar original = recentDamages.pollFirst();
                         recentDamages.addLast(new HistogramBar(original.leftX() - diff, original.rightX() - diff, original.y()));
                     }
-                    Deque<DataPoint> averageDps = dpsGraph.averageDps;
-                    int dpsCount = averageDps.size();
+                    Deque<DataPoint> dps = dpsGraph.dps;
+                    int dpsCount = dps.size();
                     for (int i = 0; i < dpsCount; i++) {
+                        DataPoint original = dps.pollFirst();
+                        dps.addLast(new DataPoint(original.x() - diff, original.y()));
+                    }
+                    Deque<DataPoint> averageDps = dpsGraph.averageDps;
+                    int averageDpsCount = averageDps.size();
+                    for (int i = 0; i < averageDpsCount; i++) {
                         DataPoint original = averageDps.pollFirst();
                         averageDps.addLast(new DataPoint(original.x() - diff, original.y()));
                     }

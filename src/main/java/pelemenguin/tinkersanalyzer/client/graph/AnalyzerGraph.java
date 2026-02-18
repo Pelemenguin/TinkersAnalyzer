@@ -62,7 +62,7 @@ public class AnalyzerGraph {
         int maxX = 0;
 
         for (AnalyzerGraphElement element : this.elements) {
-            int thisX = element.x + element.getWidth();
+            int thisX = (int) (element.x + element.getWidth() * element.scale);
             if (thisX > maxX) {
                 maxX = thisX;
             }
@@ -80,7 +80,7 @@ public class AnalyzerGraph {
         int maxY = 0;
 
         for (AnalyzerGraphElement element : this.elements) {
-            int thisY = element.y + element.getHeight();
+            int thisY = (int) (element.y + element.getHeight() * element.scale);
             if (thisY > maxY) {
                 maxY = thisY;
             }
