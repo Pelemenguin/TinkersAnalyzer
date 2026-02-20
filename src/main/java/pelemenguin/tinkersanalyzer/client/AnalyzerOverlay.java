@@ -72,21 +72,19 @@ public class AnalyzerOverlay implements IGuiOverlay {
         PoseStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.pushPose();
         modelViewStack.setIdentity();
-        modelViewStack.translate(0, 0, -5.0f);
         modelViewStack.scale(0.03125f, -0.03125f, 0.03125f);
         RenderSystem.applyModelViewMatrix();
 
-        RenderSystem.disableCull();
-        RenderSystem.disableDepthTest();
-        pose.pushPose();
-        for (AnalyzerGraph graph : this.graphs.values()) {
+        for (var graphEntry : this.graphs.entrySet()) {
+            UUID graphKey = graphEntry.getKey();
+            AnalyzerGraph graph = graphEntry.getValue();
+            pose.pushPose();
+            AnalyzerLayout.INSTANCE.transformGraph(pose, graphKey, graph, analyzer.getDefaultLayoutFor(graphKey));
             graph.render(guiGraphics);
+            pose.popPose();
         }
-        pose.popPose();
 
         RenderSystem.setProjectionMatrix(old, VertexSorting.ORTHOGRAPHIC_Z);
-        RenderSystem.enableCull();
-        RenderSystem.enableDepthTest();
         pose.popPose();
 
         modelViewStack.popPose();

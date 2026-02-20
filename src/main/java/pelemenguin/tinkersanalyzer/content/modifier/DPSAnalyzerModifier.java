@@ -22,6 +22,7 @@ import pelemenguin.tinkersanalyzer.client.graph.element.DiagramGraphElement.Hist
 import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerGraphs;
 import pelemenguin.tinkersanalyzer.content.network.TinkersAnalyzerNetwork;
 import pelemenguin.tinkersanalyzer.library.Analyzer;
+import pelemenguin.tinkersanalyzer.library.AnalyzerLayoutEntry;
 import pelemenguin.tinkersanalyzer.library.hook.DisplayAnalyzerGraphModifierHook;
 import slimeknights.tconstruct.library.modifiers.Modifier;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
@@ -40,7 +41,7 @@ public class DPSAnalyzerModifier extends Modifier implements DisplayAnalyzerGrap
 
     @Override
     public void addGraph(IToolStackView tool, ModifierEntry modifier, Analyzer analyzer) {
-        analyzer.createOrGetGraphData(GRAPH_UUID, TinkersAnalyzerGraphs.DPS);
+        analyzer.createOrGetGraphData(GRAPH_UUID, TinkersAnalyzerGraphs.DPS, new AnalyzerLayoutEntry(30.0f, 10.0f, 192.0f));
     }
 
     @SubscribeEvent
