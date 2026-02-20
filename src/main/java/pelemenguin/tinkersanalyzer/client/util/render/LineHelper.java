@@ -1,4 +1,4 @@
-package pelemenguin.tinkersanalyzer.client.util;
+package pelemenguin.tinkersanalyzer.client.util.render;
 
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL20;
@@ -155,7 +155,7 @@ public final class LineHelper {
     }
 
     /**
-     * Finishes the {@link LineHelper}.
+     * Finishes line drawing.
      */
     public static void finishDrawLine() {
         assertStatus(true);
@@ -163,6 +163,8 @@ public final class LineHelper {
         GL20.glDisable(GL20.GL_LINE_SMOOTH);
         RenderSystem.disableBlend();
         RenderSystem.enableCull();
+        tesselator = null;
+        builder = null;
         isStarted = false;
     }
 

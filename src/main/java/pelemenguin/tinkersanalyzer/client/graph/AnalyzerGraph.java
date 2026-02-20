@@ -3,11 +3,14 @@ package pelemenguin.tinkersanalyzer.client.graph;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joml.Matrix4f;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import pelemenguin.tinkersanalyzer.client.graph.element.AnalyzerGraphElement;
+import pelemenguin.tinkersanalyzer.client.util.render.QuadHelper;
 
 public class AnalyzerGraph {
 
@@ -33,11 +36,15 @@ public class AnalyzerGraph {
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0, 0, -0.0625f);
-        guiGraphics.fill(0, 0, w, 1, (0xFF000000) | color);
-        guiGraphics.fill(0, h-1, w, h, (0xFF000000) | color);
-        guiGraphics.fill(0, 0, 1, h, (0xFF000000) | color);
-        guiGraphics.fill(w-1, 0, w, h, (0xFF000000) | color);
-        guiGraphics.fill(1, 1, w, h, (BACKGROUND_ALPGA << 24) | color);
+        Matrix4f matrix = guiGraphics.pose().last().pose();
+
+        QuadHelper.prepareDrawQuads();
+        QuadHelper.drawAxisAlignedQuad(0, 0, w, 1, matrix, 0xFF000000 | color);
+        QuadHelper.drawAxisAlignedQuad(0, h-1, w, h, matrix, (0xFF000000) | color);
+        QuadHelper.drawAxisAlignedQuad(0, 0, 1, h, matrix, (0xFF000000) | color);
+        QuadHelper.drawAxisAlignedQuad(w-1, 0, w, h, matrix, (0xFF000000) | color);
+        QuadHelper.drawAxisAlignedQuad(1, 1, w, h, matrix, (BACKGROUND_ALPGA << 24) | color);
+        QuadHelper.finishDrawQuads();
         guiGraphics.pose().popPose();
     }
 

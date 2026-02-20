@@ -23,7 +23,8 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
-import pelemenguin.tinkersanalyzer.client.util.LineHelper;
+import pelemenguin.tinkersanalyzer.client.util.render.LineHelper;
+import pelemenguin.tinkersanalyzer.client.util.render.QuadHelper;
 
 public class DiagramGraphElement extends AnalyzerGraphElement {
 
@@ -88,8 +89,12 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
 
     @Override
     public void draw(GuiGraphics guiGraphics) {
-        guiGraphics.fill(0, 0, 1, this.height, 0xFF000000 | this.parent.getColor());
-        guiGraphics.fill(0, this.height - 1, this.width, this.height, 0xFF000000 | this.parent.getColor());
+        Matrix4f matrix = guiGraphics.pose().last().pose();
+
+        QuadHelper.prepareDrawQuads();
+        QuadHelper.drawAxisAlignedQuad(0, 0, 1, this.height, matrix, 0xFF000000 | this.parent.getColor());
+        QuadHelper.drawAxisAlignedQuad(0, this.height - 1, this.width, this.height, matrix, 0xFF000000 | this.parent.getColor());
+        QuadHelper.finishDrawQuads();
 
         PoseStack pose = guiGraphics.pose();
         Font font = Minecraft.getInstance().font;
@@ -152,27 +157,6 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         this.cachedMaxYForThisFrame = Float.NaN;
     }
 
-    private static void fill(GuiGraphics guiGraphics, float x1, float y1, float x2, float y2, int color) {
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
-
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder builder = tesselator.getBuilder();
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-
-        builder.vertex(pose.last().pose(), x1, y1, 0).color(color).endVertex();
-        builder.vertex(pose.last().pose(), x1, y2, 0).color(color).endVertex();
-        builder.vertex(pose.last().pose(), x2, y2, 0).color(color).endVertex();
-        builder.vertex(pose.last().pose(), x2, y1, 0).color(color).endVertex();
-
-        tesselator.end();
-        RenderSystem.disableBlend();
-        pose.popPose();
-    }
-
     private float cachedMinYForThisFrame = Float.NaN;
     private float cachedMaxYForThisFrame = Float.NaN;
     private void calcYRangeForThisFrame() {
@@ -223,6 +207,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
     private long lastInterpolationTime = 0;
     private void drawReferenceLine(GuiGraphics guiGraphics, float horizontalAxisNameWidth, float verticalAxisNameHeight) {
         PoseStack pose = guiGraphics.pose();
+        Matrix4f matrix = pose.last().pose();
 
         int color = 0x7F000000 | this.parent.getColor();
 
@@ -239,10 +224,13 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         float quarterLineHeight = 0.25f * lineHeight;
         float vAxisTagLimit = quarterLineHeight + verticalAxisNameHeight + 0.25f;
         float width = (float) Minecraft.getInstance().getWindow().getGuiScale() * 0.0625f;
+
         for (float i = chooseStartTick(this.minX, this.unitXForReferenceLine); i < this.maxX; i += this.unitXForReferenceLine) {
             float curX = (i - this.minX) / (this.maxX - this.minX) * this.width;
             if (curX >= this.width - 1.25f) continue;
-            fill(guiGraphics, curX, 0, curX + width, this.height, color);
+            QuadHelper.prepareDrawQuads();
+            QuadHelper.drawAxisAlignedQuad(curX, 0, curX + width, this.height, matrix, color);
+            QuadHelper.finishDrawQuads();
 
             Component toDraw = Component.literal(this.horizontalTickLabel.getTickLabel(i));
             if (curX + 0.25f * font.width(toDraw) > horizontalAxisNameWidth) continue;
@@ -257,7 +245,9 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             float curY = (maxYToDraw - j) / (maxYToDraw - minYToDraw) * this.height;
             if (curY <= 0.25f) continue;
             if (curY > this.height - 1.25f) continue;
-            fill(guiGraphics, 0, curY, this.width, curY + width, color);
+            QuadHelper.prepareDrawQuads();
+            QuadHelper.drawAxisAlignedQuad(0, curY, this.width, curY + width, matrix, color);
+            QuadHelper.finishDrawQuads();
 
             if (curY > mysteriousConstant) continue;
             if (curY < vAxisTagLimit) continue;
@@ -268,8 +258,10 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             pose.popPose();
         }
 
-        fill(guiGraphics, this.width - width, 0, this.width, this.height, color);
-        fill(guiGraphics, 0, 0, this.width, width, color);
+        QuadHelper.prepareDrawQuads();
+        QuadHelper.drawAxisAlignedQuad(this.width - width, 0, this.width, this.height, matrix, color);
+        QuadHelper.drawAxisAlignedQuad(0, 0, this.width, width, matrix, color);
+        QuadHelper.finishDrawQuads();
     }
 
     public DiagramGraphElement horizontalAxisName(Component name) {
@@ -519,12 +511,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             Matrix4f matrix = pose.last().pose();
             pose.pushPose();
 
-            RenderSystem.setShader(GameRenderer::getRendertypeGuiShader);
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder builder = tesselator.getBuilder();
-            builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            QuadHelper.prepareDrawQuads();
             float y0 = this.transformY(parent, 0);
 
             for (HistogramBar bar : this.data) {
@@ -537,45 +524,10 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
 
                 if (rightX < 0f) break;
                 if (leftX > (float) parent.width) continue;
-                float smallerY = y > y0 ? y0 : y;
-                float largerY = smallerY == y ? y0 : y;
-                largerY = largerY > parent.height - 1 ? parent.height - 1 : largerY;
-                smallerY = smallerY < 0 ? 0 : smallerY;
-                float leftXToDraw = leftX < 0 ? 0 : leftX;
-                float rightXToDraw = rightX > parent.width - 1 ? parent.width - 1 : rightX;
-
-                // Inner
-                builder.vertex(matrix, leftXToDraw, smallerY, 0).color(colorInner).endVertex();
-                builder.vertex(matrix, leftXToDraw, largerY, 0).color(colorInner).endVertex();
-                builder.vertex(matrix, rightXToDraw, largerY, 0).color(colorInner).endVertex();
-                builder.vertex(matrix, rightXToDraw, smallerY, 0).color(colorInner).endVertex();
-
-                // Left border
-                if (leftX > 0.0f && leftX < parent.width-1) {
-                    builder.vertex(matrix, leftXToDraw, smallerY, 0).color(color).endVertex();
-                    builder.vertex(matrix, leftXToDraw, largerY, 0).color(color).endVertex();
-                    builder.vertex(matrix, leftXToDraw + 0.25f, largerY, 0).color(color).endVertex();
-                    builder.vertex(matrix, leftXToDraw + 0.25f, smallerY, 0).color(color).endVertex();
-                }
-                // Right border
-                if (rightX > 0 && rightX < parent.width - 1) {
-                    builder.vertex(matrix, rightXToDraw - 0.25f, smallerY, 0).color(color).endVertex();
-                    builder.vertex(matrix, rightXToDraw - 0.25f, largerY, 0).color(color).endVertex();
-                    builder.vertex(matrix, rightXToDraw, largerY, 0).color(color).endVertex();
-                    builder.vertex(matrix, rightXToDraw, smallerY, 0).color(color).endVertex();
-                }
-                // Horizontal border
-                if (y > 0.0f && y < parent.height - 1) {
-                    float tempY = bar.y >= 0.0f ? y : y - 0.25f;
-                    builder.vertex(matrix, leftXToDraw, tempY, 0).color(color).endVertex();
-                    builder.vertex(matrix, leftXToDraw, tempY + 0.25f, 0).color(color).endVertex();
-                    builder.vertex(matrix, rightXToDraw, tempY + 0.25f, 0).color(color).endVertex();
-                    builder.vertex(matrix, rightXToDraw, tempY, 0).color(color).endVertex();
-                }
+                QuadHelper.drawAxisAlignedBorderedQuadWithin(leftX, y, rightX, y0, 0, 0, parent.width - 1, parent.height - 1, 0.25f, matrix, colorInner, color);
             }
 
-            tesselator.end();
-            RenderSystem.disableBlend();
+            QuadHelper.finishDrawQuads();
             pose.popPose();
 
             this.minY = minY;
