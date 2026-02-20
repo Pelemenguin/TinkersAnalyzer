@@ -5,7 +5,6 @@ import java.util.Deque;
 import java.util.function.LongSupplier;
 
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL20;
 import org.slf4j.Logger;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -24,6 +23,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
+import pelemenguin.tinkersanalyzer.client.util.LineHelper;
 
 public class DiagramGraphElement extends AnalyzerGraphElement {
 
@@ -598,84 +598,6 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             if (leftmost == null) return;
             this.data.addFirst(leftmost);
         }
-        void connect(float x1, float y1, float x2, float y2, float minX, float maxX, float minY, float maxY, Matrix4f matrix, BufferBuilder builder, int color) {
-            float startX;
-            float startY;
-            float endX;
-            float endY;
-
-            if (Float.isInfinite(x1)) {
-                if (x2 == x1) {
-                    return;
-                } else if (x2 == -x1) {
-                    startX = minX;
-                    endX = maxX;
-                    startY = endY = (y1 + y2) * 0.5f;
-                } else {
-                    if (y2 > maxY || y2 < minY) {
-                        return;
-                    }
-                    startX = x1 > 0 ? maxX : minX;
-                    endX = Mth.clamp(x2, minX, maxX);
-                    startY = endY = y2;
-                }
-            } else if (Float.isInfinite(x2)) {
-                if (y1 > maxY || y1 < minY) {
-                    return;
-                }
-                startX = Mth.clamp(x1, minX, maxX);
-                endX = x2 > 0 ? maxX : minX;
-                startY = endY = y1;
-            } else {
-                float dx = x2 - x1;
-                float dy = y2 - y1;
-
-                // Consider line l: p1 + t * (p2 - p1)
-                float minT = 0.0f;
-                float maxT = 1.0f;
-
-                // Left border: x1 + t * dx >= minX
-                // Right border: x1 + t * dx <= maxX
-                if (dx > 0) {
-                    minT = Math.max(minT, (minX - x1) / dx);
-                    maxT = Math.min(maxT, (maxX - x1) / dx);
-                } else if (dx < 0) {
-                    maxT = Math.min(maxT, (minX - x1) / dx);
-                    minT = Math.max(minT, (maxX - x1) / dx);
-                } else {
-                    if (x1 < minX || x1 > maxX) {
-                        return;
-                    }
-                }
-
-                // Top border: y1 + t * dy >= minY
-                // Bottom border: y1 + t * dy <= maxY
-                if (dy > 0) {
-                    minT = Math.max(minT, (minY - y1) / dy);
-                    maxT = Math.min(maxT, (maxY - y1) / dy);
-                } else if (dy < 0) {
-                    maxT = Math.min(maxT, (minY - y1) / dy);
-                    minT = Math.max(minT, (maxY - y1) / dy);
-                } else {
-                    if (y1 < minY || y1 > maxY) {
-                        return;
-                    }
-                }
-
-                if (maxT <= minT) return;
-
-                startX = x1 + minT * dx;
-                startY = y1 + minT * dy;
-                endX = x1 + maxT * dx;
-                endY = y1 + maxT * dy;
-            }
-
-            float resultDx = endX - startX;
-            float resultDy = endY - startY;
-
-            builder.vertex(matrix, startX, startY, 0).color(color).normal(resultDx, resultDy, 0).endVertex();
-            builder.vertex(matrix, endX, endY, 0).color(color).normal(resultDx, resultDy, 0).endVertex();
-        }
         @Override
         public void draw(GuiGraphics guiGraphics, DiagramGraphElement parent, float minX, float maxX) {
             int color = 0xFF000000 | (this.color < 0 ? parent.parent.getColor() : this.color);
@@ -687,14 +609,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             Matrix4f matrix = pose.last().pose();
             pose.pushPose();
 
-            RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-            GL20.glEnable(GL20.GL_LINE_SMOOTH);
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.lineWidth(2.0f);
-            Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder builder = tesselator.getBuilder();
-            builder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+            LineHelper.prepareDrawLine();
 
             synchronized (this.data) {
                 float lastX = this.transformX(parent, minX, maxX, Float.NEGATIVE_INFINITY);
@@ -704,7 +619,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
                     float x = this.transformX(parent, minX, maxX, point.x);
                     float y = this.transformY(parent, point.y);
 
-                    this.connect(lastX, lastY, x, y, 1, parent.width, 0, parent.height - 1, matrix, builder, color);
+                    LineHelper.connectWithin(lastX, lastY, x, y, 1, 0, parent.width, parent.height - 1, matrix, color);
                     if (point.y < minY) minY = point.y;
                     if (point.y > maxY) maxY = point.y;
 
@@ -714,9 +629,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
                 this.data.removeLast();
             }
 
-            tesselator.end();
-            GL20.glDisable(GL20.GL_LINE_SMOOTH);
-            RenderSystem.disableBlend();
+            LineHelper.finishDrawLine();
             pose.popPose();
 
             this.minY = minY;
