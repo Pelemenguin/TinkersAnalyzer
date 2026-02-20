@@ -31,11 +31,14 @@ public class AnalyzerGraph {
         int w = this.getWidth();
         int h = this.getHeight();
 
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0, 0, -0.0625f);
         guiGraphics.fill(0, 0, w, 1, (0xFF000000) | color);
         guiGraphics.fill(0, h-1, w, h, (0xFF000000) | color);
         guiGraphics.fill(0, 0, 1, h, (0xFF000000) | color);
         guiGraphics.fill(w-1, 0, w, h, (0xFF000000) | color);
         guiGraphics.fill(1, 1, w, h, (BACKGROUND_ALPGA << 24) | color);
+        guiGraphics.pose().popPose();
     }
 
     public void render(GuiGraphics guiGraphics) {

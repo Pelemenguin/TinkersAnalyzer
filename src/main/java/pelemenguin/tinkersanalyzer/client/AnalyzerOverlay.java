@@ -4,11 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.joml.Matrix4f;
 import org.slf4j.Logger;
 
+import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -56,18 +61,36 @@ public class AnalyzerOverlay implements IGuiOverlay {
 
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
-        pose.scale(2, 2, 1);
+        pose.setIdentity();
 
-        int curY = 4;
+        Matrix4f old = RenderSystem.getProjectionMatrix();
+        Window window = Minecraft.getInstance().getWindow();
+        Matrix4f matrix = new Matrix4f().setPerspective((float) Math.toRadians(70.0f), (float) window.getWidth() / window.getHeight(), 0.05f, 11000.0f);
 
+        RenderSystem.setProjectionMatrix(matrix, VertexSorting.DISTANCE_TO_ORIGIN);
+
+        PoseStack modelViewStack = RenderSystem.getModelViewStack();
+        modelViewStack.pushPose();
+        modelViewStack.setIdentity();
+        modelViewStack.translate(0, 0, -5.0f);
+        modelViewStack.scale(0.03125f, -0.03125f, 0.03125f);
+        RenderSystem.applyModelViewMatrix();
+
+        RenderSystem.disableCull();
+        RenderSystem.disableDepthTest();
+        pose.pushPose();
         for (AnalyzerGraph graph : this.graphs.values()) {
-            pose.translate(4, curY, 0);
             graph.render(guiGraphics);
-            pose.translate(-4, -curY, 0);
-
-            curY += graph.getHeight() + 1;
         }
         pose.popPose();
+
+        RenderSystem.setProjectionMatrix(old, VertexSorting.ORTHOGRAPHIC_Z);
+        RenderSystem.enableCull();
+        RenderSystem.enableDepthTest();
+        pose.popPose();
+
+        modelViewStack.popPose();
+        RenderSystem.applyModelViewMatrix();
     }
 
     public void loadAnalyzer(Analyzer analyzer) {

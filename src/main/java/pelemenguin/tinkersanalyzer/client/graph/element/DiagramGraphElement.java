@@ -173,27 +173,6 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         pose.popPose();
     }
 
-    @SuppressWarnings("unused") // Use this later
-    private static void drawThinLine(GuiGraphics guiGraphics, float x1, float y1, float x2, float y2, float r, float g, float b, float a) {
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
-
-        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-        RenderSystem.lineWidth((float) Minecraft.getInstance().getWindow().getGuiScale() / 4.0f);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder builder = tesselator.getBuilder();
-
-        builder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-        builder.vertex(pose.last().pose(), x1, y1, 0).color(r, g, b, a).normal(x2-x1, y2-y1, 0).endVertex();
-        builder.vertex(pose.last().pose(), x2, y2, 0).color(r, g, b, a).normal(x2-x1, y2-y1, 0).endVertex();
-
-        tesselator.end();
-        RenderSystem.disableBlend();
-        pose.popPose();
-    }
-
     private float cachedMinYForThisFrame = Float.NaN;
     private float cachedMaxYForThisFrame = Float.NaN;
     private void calcYRangeForThisFrame() {
@@ -596,6 +575,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             }
 
             tesselator.end();
+            RenderSystem.disableBlend();
             pose.popPose();
 
             this.minY = minY;
@@ -690,15 +670,6 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
                 endY = y1 + maxT * dy;
             }
 
-            if (endY < startY) {
-                float temp = endY;
-                endY = startY;
-                startY = temp;
-                temp = endX;
-                endX = startX;
-                startX = temp;
-            }
-
             float resultDx = endX - startX;
             float resultDy = endY - startY;
 
@@ -718,6 +689,8 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
 
             RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
             GL20.glEnable(GL20.GL_LINE_SMOOTH);
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
             RenderSystem.lineWidth(2.0f);
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder builder = tesselator.getBuilder();
@@ -743,6 +716,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
 
             tesselator.end();
             GL20.glDisable(GL20.GL_LINE_SMOOTH);
+            RenderSystem.disableBlend();
             pose.popPose();
 
             this.minY = minY;
