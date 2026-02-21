@@ -14,7 +14,7 @@ public final class TinkersAnalyzerClient {
 
     @SubscribeEvent
     public static void registerOverlays(RegisterGuiOverlaysEvent event) {
-        event.registerBelow(VanillaGuiOverlay.HOTBAR.id(), "tinkers_analyzer", new AnalyzerOverlay());
+        event.registerBelow(VanillaGuiOverlay.HOTBAR.id(), "tinkers_analyzer", AnalyzerOverlay.INSTANCE);
     }
 
     public static void init() {

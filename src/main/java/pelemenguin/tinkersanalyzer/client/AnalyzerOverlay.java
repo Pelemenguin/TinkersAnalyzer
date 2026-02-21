@@ -34,10 +34,11 @@ import slimeknights.tconstruct.library.tools.nbt.ToolStack;
 public class AnalyzerOverlay implements IGuiOverlay {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    public static final AnalyzerOverlay INSTANCE = new AnalyzerOverlay();
 
     private static final HashMap<ResourceLocation, IAnalyzerGraphCreator> ALL_GRAPHS = new HashMap<>();
 
-    private Map<UUID, AnalyzerGraph> graphs = new HashMap<>();
+    protected Map<UUID, AnalyzerGraph> graphs = new HashMap<>();
 
     @Override
     public void render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
@@ -58,6 +59,7 @@ public class AnalyzerOverlay implements IGuiOverlay {
 
         if (analyzer.isEmpty()) return;
         this.loadAnalyzer(analyzer);
+        AnalyzerLayout.INSTANCE.load(analyzer);
 
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
@@ -65,7 +67,7 @@ public class AnalyzerOverlay implements IGuiOverlay {
 
         Matrix4f old = RenderSystem.getProjectionMatrix();
         Window window = Minecraft.getInstance().getWindow();
-        Matrix4f matrix = new Matrix4f().setPerspective((float) Math.toRadians(70.0f), (float) window.getWidth() / window.getHeight(), 0.05f, 11000.0f);
+        Matrix4f matrix = new Matrix4f().setPerspective((float) Math.toRadians(Minecraft.getInstance().options.fov().get()), (float) window.getWidth() / window.getHeight(), 0.05f, 11000.0f);
 
         RenderSystem.setProjectionMatrix(matrix, VertexSorting.DISTANCE_TO_ORIGIN);
 
@@ -79,7 +81,7 @@ public class AnalyzerOverlay implements IGuiOverlay {
             UUID graphKey = graphEntry.getKey();
             AnalyzerGraph graph = graphEntry.getValue();
             pose.pushPose();
-            AnalyzerLayout.INSTANCE.transformGraph(pose, graphKey, graph, analyzer.getDefaultLayoutFor(graphKey));
+            AnalyzerLayout.INSTANCE.transformGraph(pose, graphKey, graph);
             graph.render(guiGraphics);
             pose.popPose();
         }
@@ -109,6 +111,7 @@ public class AnalyzerOverlay implements IGuiOverlay {
                     LOGGER.error("Error initializing graph " + pair.getFirst() + " with data " + pair.getSecond());
                 }
             }
+            AnalyzerLayout.DEFAULT_LAYOUTS.putIfAbsent(uuid, analyzer.getDefaultLayoutFor(uuid));
         }
     }
 

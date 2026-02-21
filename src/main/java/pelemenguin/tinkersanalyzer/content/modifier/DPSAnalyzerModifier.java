@@ -41,7 +41,7 @@ public class DPSAnalyzerModifier extends Modifier implements DisplayAnalyzerGrap
 
     @Override
     public void addGraph(IToolStackView tool, ModifierEntry modifier, Analyzer analyzer) {
-        analyzer.createOrGetGraphData(GRAPH_UUID, TinkersAnalyzerGraphs.DPS, new AnalyzerLayoutEntry(30.0f, 10.0f, 192.0f));
+        analyzer.createOrGetGraphData(GRAPH_UUID, TinkersAnalyzerGraphs.DPS, new AnalyzerLayoutEntry(30.0f, -10.0f, 192.0f));
     }
 
     @SubscribeEvent

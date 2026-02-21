@@ -43,11 +43,11 @@ public final class QuadHelper {
      * @param x1     X-coordinate of vertex 1
      * @param y1     Y-coordinate of vertex 1
      * @param x2     X-coordinate of vertex 2
-     * @param y2     Y-coordinate of vertex 1
+     * @param y2     Y-coordinate of vertex 2
      * @param x3     X-coordinate of vertex 3
-     * @param y3     Y-coordinate of vertex 1
+     * @param y3     Y-coordinate of vertex 3
      * @param x4     X-coordinate of vertex 4
-     * @param y4     Y-coordinate of vertex 1
+     * @param y4     Y-coordinate of vertex 4
      * @param matrix The current transformation matrix. Usually obtained via {@code poseStack.last().pose()}
      * @param color  The color of the quad in {@code 0xAARRGGBB} format
      */
