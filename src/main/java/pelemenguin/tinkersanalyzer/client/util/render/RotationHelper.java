@@ -28,15 +28,6 @@ public final class RotationHelper {
      * @return The rotation matrix
      */
     public static Matrix4f rotationMatrix(float yawDegrees, float pitchDegrees, Matrix4f dest) {
-//        float sinYaw = Math.sin(Math.toRadians(yawDegrees));
-//        float cosYaw = Math.cos(Math.toRadians(yawDegrees));
-//        float sinPitch = Math.sin(Math.toRadians(pitchDegrees));
-//        float cosPitch = Math.cos(Math.toRadians(pitchDegrees));
-//        dest.identity()
-//            .m00(cosYaw) .m10(-sinYaw * sinPitch).m20(-sinYaw * cosPitch)
-//                         .m11(cosPitch)          .m21(-sinPitch)
-//            .m02(sinYaw).m12(cosYaw * sinPitch).m22(cosYaw * cosPitch);
-//        return dest;
         return dest.setRotationYXZ(Math.toRadians(-yawDegrees), Math.toRadians(pitchDegrees), 0);
     }
 

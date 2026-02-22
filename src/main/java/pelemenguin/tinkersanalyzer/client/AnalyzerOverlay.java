@@ -14,6 +14,7 @@ import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -40,26 +41,30 @@ public class AnalyzerOverlay implements IGuiOverlay {
 
     protected Map<UUID, AnalyzerGraph> graphs = new HashMap<>();
 
+    private final Analyzer analyzer = new Analyzer();
     @Override
     public void render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
+        if (Minecraft.getInstance().options.getCameraType() != CameraType.FIRST_PERSON) {
+            return;
+        }
         final LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         ItemStack mainHandItemStack = player.getMainHandItem();
         Item mainHandItem = mainHandItemStack.getItem();
-        Analyzer analyzer = new Analyzer();
+        this.analyzer.clear();
         if (mainHandItem instanceof IModifiable) {
             ToolStack toolStack = ToolStack.from(mainHandItemStack);
             for (ModifierEntry entry : toolStack.getModifierList()) {
                 DisplayAnalyzerGraphModifierHook hook = entry.getHook(DisplayAnalyzerGraphModifierHook.INSTANCE);
                 if (hook != null) {
-                    hook.addGraph(toolStack, entry, analyzer);
+                    hook.addGraph(toolStack, entry, this.analyzer);
                 }
             }
         }
 
-        if (analyzer.isEmpty()) return;
-        this.loadAnalyzer(analyzer);
-        AnalyzerLayout.INSTANCE.load(analyzer);
+        if (this.analyzer.isEmpty()) return;
+        this.loadAnalyzer(this.analyzer);
+        AnalyzerLayout.INSTANCE.load(this.analyzer);
 
         PoseStack pose = guiGraphics.pose();
         pose.pushPose();
@@ -76,6 +81,8 @@ public class AnalyzerOverlay implements IGuiOverlay {
         modelViewStack.setIdentity();
         modelViewStack.scale(0.03125f, -0.03125f, 0.03125f);
         RenderSystem.applyModelViewMatrix();
+
+        AnalyzerLayout.INSTANCE.pushTransformation(pose);
 
         for (var graphEntry : this.graphs.entrySet()) {
             UUID graphKey = graphEntry.getKey();

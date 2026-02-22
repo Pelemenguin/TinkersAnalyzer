@@ -83,4 +83,9 @@ public class Analyzer {
         return this.graphs.isEmpty();
     }
 
+    public void clear() {
+        this.graphs.clear();
+        this.defaultLayouts.clear();
+    }
+
 }

@@ -66,10 +66,6 @@ public class AnalyzerLayout {
     }
 
     public void transformGraph(PoseStack pose, UUID uuid, AnalyzerGraph graph) {
-        if (editingMode) {
-            pose.mulPoseMatrix(this.editingModeMatrixToOrigin);
-            pose.mulPoseMatrix(this.editingModeMatrixToPreviousView);
-        }
         pose.mulPoseMatrix(this.cachedMatrices.get(uuid));
         pose.translate(-0.5f * graph.getWidth(), -0.5f * graph.getHeight(), 0);
     }
@@ -152,6 +148,13 @@ public class AnalyzerLayout {
         Vector3f vertex4 = new Vector3f(vertex2).sub(vertex1).add(vertex3);
         result = Intersectionf.intersectRayTriangle(ZERO_VECTOR, ray, vertex4, vertex2, vertex3, 1e-9f);
         return result;
+    }
+
+    public void pushTransformation(PoseStack pose) {
+        if (editingMode) {
+            pose.mulPoseMatrix(this.editingModeMatrixToOrigin);
+            pose.mulPoseMatrix(this.editingModeMatrixToPreviousView);
+        }
     }
 
 }
