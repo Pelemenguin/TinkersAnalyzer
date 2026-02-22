@@ -3,6 +3,7 @@ package pelemenguin.tinkersanalyzer.content.network;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
+import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerEventListeners;
 import pelemenguin.tinkersanalyzer.content.modifier.DPSAnalyzerModifier;
 
 public class TinkersAnalyzerNetwork {
@@ -22,6 +23,14 @@ public class TinkersAnalyzerNetwork {
                 DPSAnalyzerModifier.DPSAnalyzerReceiveDamageMessage::encode,
                 DPSAnalyzerModifier.DPSAnalyzerReceiveDamageMessage::new,
                 DPSAnalyzerModifier.DPSAnalyzerReceiveDamageMessage::handle
+            );
+
+        INSTANCE.registerMessage(
+                1,
+                TinkersAnalyzerEventListeners.EquipmentChangeMessage.class,
+                TinkersAnalyzerEventListeners.EquipmentChangeMessage::encode,
+                TinkersAnalyzerEventListeners.EquipmentChangeMessage::new,
+                TinkersAnalyzerEventListeners.EquipmentChangeMessage::handle
             );
     }
 

@@ -60,7 +60,6 @@ minecraft {
     runs {
         // applies to all the run configs below
         configureEach {
-            workingDirectory project.file('run')
 
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.
@@ -82,11 +81,13 @@ minecraft {
         }
 
         client {
+            workingDirectory project.file('run/client')
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', mod_id
         }
 
         server {
+            workingDirectory project.file('run/server')
             property 'forge.enabledGameTestNamespaces', mod_id
             args '--nogui'
         }

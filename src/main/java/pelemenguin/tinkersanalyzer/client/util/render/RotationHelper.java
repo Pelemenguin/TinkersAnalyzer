@@ -11,8 +11,8 @@ public final class RotationHelper {
     /**
      * Calculate a rotation matrix according to given yaw and pitch.
      * 
-     * @param yawDegrees   The yaw in degrees. It rotates the XZ plane counterclockwise around the Y-axis.
-     * @param pitchDegrees The pitch in degrees. It rotates the YZ plane clockwise around the X-axis 
+     * @param yawDegrees   The yaw in degrees. It rotates the XZ plane counterclockwise around the Y-axis
+     * @param pitchDegrees The pitch in degrees. It rotates the YZ plane clockwise around the X-axis
      * @return The rotation matrix
      */
     public static Matrix4f rotationMatrix(float yawDegrees, float pitchDegrees) {

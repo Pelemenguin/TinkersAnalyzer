@@ -1,0 +1,16 @@
+{
+
+        "_comment_modifiers": " ========== 强化 ========== ",
+
+    "modifier.tinkers_analyzer.dps_analyzer": "DPS分析仪",
+
+        "_comment_texts": " ========== 文本 ========== ",
+
+    "text.tinkers_analyzer.editing_mode.title": "编辑模式",
+    "text.tinkers_analyzer.editing_mode.description": "按%1$s切换编辑模式，按%2$s切换选中的图表",
+    "text.tinkers_analyzer.editing_mode.angle.title": "角度模式",
+    "text.tinkers_analyzer.editing_mode.angle.description": "滚动鼠标以调整图表角度（潜行时调整水平偏转）",
+    "text.tinkers_analyzer.editing_mode.distance.title": "距离模式",
+    "text.tinkers_analyzer.editing_mode.distance.description": "滚动鼠标以调整图表距离"
+
+}

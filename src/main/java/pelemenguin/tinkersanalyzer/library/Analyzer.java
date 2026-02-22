@@ -71,7 +71,7 @@ public class Analyzer {
      * @see #createOrGetGraphData(UUID, ResourceLocation, AnalyzerLayoutEntry)
      */
     public CompoundTag createOrGetGraphData(UUID uuid, ResourceLocation graphId) {
-        return this.createOrGetGraphData(uuid, graphId, AnalyzerLayoutEntry.DEFAULT_LAYOUT);
+        return this.createOrGetGraphData(uuid, graphId, AnalyzerLayoutEntry.DEFAULT_LAYOUT.get());
     }
 
     @Nullable

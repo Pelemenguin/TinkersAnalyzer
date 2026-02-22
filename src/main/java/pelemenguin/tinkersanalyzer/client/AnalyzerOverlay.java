@@ -38,8 +38,16 @@ public class AnalyzerOverlay implements IGuiOverlay {
     public static final AnalyzerOverlay INSTANCE = new AnalyzerOverlay();
 
     private static final HashMap<ResourceLocation, IAnalyzerGraphCreator> ALL_GRAPHS = new HashMap<>();
+    private boolean needUpdate = true;
 
     protected Map<UUID, AnalyzerGraph> graphs = new HashMap<>();
+
+    public static void registerGraph(ResourceLocation id, IAnalyzerGraphCreator graph) {
+        IAnalyzerGraphCreator original = ALL_GRAPHS.putIfAbsent(id, graph);
+        if (original != null) {
+            throw new IllegalArgumentException("Graph for ID " + id + " already registered!");
+        }
+    }
 
     private final Analyzer analyzer = new Analyzer();
     @Override
@@ -49,21 +57,24 @@ public class AnalyzerOverlay implements IGuiOverlay {
         }
         final LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
-        ItemStack mainHandItemStack = player.getMainHandItem();
-        Item mainHandItem = mainHandItemStack.getItem();
-        this.analyzer.clear();
-        if (mainHandItem instanceof IModifiable) {
-            ToolStack toolStack = ToolStack.from(mainHandItemStack);
-            for (ModifierEntry entry : toolStack.getModifierList()) {
-                DisplayAnalyzerGraphModifierHook hook = entry.getHook(DisplayAnalyzerGraphModifierHook.INSTANCE);
-                if (hook != null) {
-                    hook.addGraph(toolStack, entry, this.analyzer);
+        if (this.needUpdate) {
+            ItemStack mainHandItemStack = player.getMainHandItem();
+            Item mainHandItem = mainHandItemStack.getItem();
+            this.analyzer.clear();
+            if (mainHandItem instanceof IModifiable) {
+                ToolStack toolStack = ToolStack.from(mainHandItemStack);
+                for (ModifierEntry entry : toolStack.getModifierList()) {
+                    DisplayAnalyzerGraphModifierHook hook = entry.getHook(DisplayAnalyzerGraphModifierHook.INSTANCE);
+                    if (hook != null) {
+                        hook.addGraph(toolStack, entry, this.analyzer);
+                    }
                 }
             }
-        }
 
-        if (this.analyzer.isEmpty()) return;
-        this.loadAnalyzer(this.analyzer);
+            if (this.analyzer.isEmpty()) return;
+            this.loadAnalyzer(this.analyzer);
+            this.needUpdate = false;
+        }
         AnalyzerLayout.INSTANCE.load(this.analyzer);
 
         PoseStack pose = guiGraphics.pose();
@@ -89,7 +100,7 @@ public class AnalyzerOverlay implements IGuiOverlay {
             AnalyzerGraph graph = graphEntry.getValue();
             pose.pushPose();
             AnalyzerLayout.INSTANCE.transformGraph(pose, graphKey, graph);
-            graph.render(guiGraphics);
+            graph.render(guiGraphics, AnalyzerLayout.INSTANCE.isSelected(graphKey));
             pose.popPose();
         }
 
@@ -122,14 +133,10 @@ public class AnalyzerOverlay implements IGuiOverlay {
         }
     }
 
-    public AnalyzerOverlay() {
+    public void needUpdate() {
+        this.needUpdate = true;
     }
 
-    public static void registerGraph(ResourceLocation id, IAnalyzerGraphCreator graph) {
-        IAnalyzerGraphCreator original = ALL_GRAPHS.putIfAbsent(id, graph);
-        if (original != null) {
-            throw new IllegalArgumentException("Graph for ID " + id + " already registered!");
-        }
-    }
+    private AnalyzerOverlay() {}
 
 }
