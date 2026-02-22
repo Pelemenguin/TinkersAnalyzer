@@ -8,8 +8,14 @@ import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
 import com.mojang.blaze3d.vertex.PoseStack;
+
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.TickEvent;
@@ -21,6 +27,7 @@ import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
 import pelemenguin.tinkersanalyzer.client.util.render.RotationHelper;
 import pelemenguin.tinkersanalyzer.library.Analyzer;
 import pelemenguin.tinkersanalyzer.library.AnalyzerLayoutEntry;
+import slimeknights.mantle.client.ResourceColorManager;
 
 @Mod.EventBusSubscriber(bus = Bus.FORGE, modid = TinkersAnalyzer.MODID, value = Dist.CLIENT)
 public class AnalyzerLayout {
@@ -211,6 +218,78 @@ public class AnalyzerLayout {
         if (this.editingMode != EditingMode.OFF) {
             pose.mulPoseMatrix(this.editingModeMatrixToOrigin);
             pose.mulPoseMatrix(this.editingModeMatrixToPreviousView);
+        }
+    }
+
+    private static final String EDITING_MODE = TinkersAnalyzer.makeAnalyzerTranslationKey("editing_mode");
+    private static final Component EDITING_MODE_TITLE = Component.translatable(TinkersAnalyzer.makeAnalyzerTranslationKey("editing_mode.title"));
+    private static final Component EDITING_MODE_DESCRIPTION = Component.translatable(TinkersAnalyzer.makeAnalyzerTranslationKey("editing_mode.description"),
+            Component.keybind("key.tinkers_analyzer.toggle_layout_editing_mode"),
+            Component.keybind("key.playerlist")
+        );
+    private static final String EDITING_MODE_ANGLE = TinkersAnalyzer.makeAnalyzerTranslationKey("editing_mode.angle");
+    private static final Component EDITING_MODE_ANGLE_TITLE = Component.translatable(TinkersAnalyzer.makeAnalyzerTranslationKey("editing_mode.angle.title"));
+    private static final Component EDITING_MODE_ANGLE_DESCRIPTION = Component.translatable(TinkersAnalyzer.makeAnalyzerTranslationKey("editing_mode.angle.description"));
+    private static final String EDITING_MODE_DISTANCE = TinkersAnalyzer.makeAnalyzerTranslationKey("editing_mode.distance");
+    private static final Component EDITING_MODE_DISTANCE_TITLE = Component.translatable(TinkersAnalyzer.makeAnalyzerTranslationKey("editing_mode.distance.title"));
+    private static final Component EDITING_MODE_DISTANCE_DESCRIPTION = Component.translatable(TinkersAnalyzer.makeAnalyzerTranslationKey("editing_mode.distance.description"));
+    private static final String EDITING_MODE_OFF = TinkersAnalyzer.makeAnalyzerTranslationKey("editing_mode.off");
+    private static final Component EDITING_MODE_OFF_TITLE = Component.translatable(TinkersAnalyzer.makeAnalyzerTranslationKey("editing_mode.off.title"));
+    private static final Component EDITING_MODE_OFF_DESCRIPTION = Component.translatable(TinkersAnalyzer.makeAnalyzerTranslationKey("editing_mode.off.description"));
+    private float editingModeEnableProgress = 0.0f;
+    public void drawEditingModeOverlay(GuiGraphics guiGraphics, int width, int height) {
+        if (this.editingMode == EditingMode.OFF) {
+            editingModeEnableProgress -= 0.1f * Minecraft.getInstance().getDeltaFrameTime();
+            if (this.editingModeEnableProgress < 0) this.editingModeEnableProgress = 0.0f;
+        } else {
+            editingModeEnableProgress += 0.1f * Minecraft.getInstance().getDeltaFrameTime();
+            if (this.editingModeEnableProgress > 1.0f) {
+                this.editingModeEnableProgress = 1.0f;
+            }
+        }
+
+        if (this.editingModeEnableProgress > 0.0f) {
+            Font font = Minecraft.getInstance().font;
+
+            int alpha = Mth.ceil(255 * this.editingModeEnableProgress) << 24;
+            int editingModeColor = alpha | ResourceColorManager.getColor(EDITING_MODE);
+            @SuppressWarnings("null") // ChatFormatting.GRAY always has color
+            int textColor = alpha | ChatFormatting.WHITE.getColor().intValue();
+
+            float displacement = font.lineHeight * (3 * this.editingModeEnableProgress - 2);
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0, displacement, 0);
+            guiGraphics.drawString(font, EDITING_MODE_TITLE, (width - font.width(EDITING_MODE_TITLE)) / 2, 0, editingModeColor);
+            guiGraphics.drawString(font, EDITING_MODE_DESCRIPTION, (width - font.width(EDITING_MODE_DESCRIPTION)) / 2, (int) font.lineHeight, textColor);
+            guiGraphics.pose().popPose();
+
+            displacement = height / 2 + font.lineHeight * (-3 * this.editingModeEnableProgress + 5);
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0, displacement, 0);
+            Component title;
+            Component desc;
+            int modeColor;
+            if (this.editingMode == EditingMode.ANGLE) {
+                title = EDITING_MODE_ANGLE_TITLE;
+                desc = EDITING_MODE_ANGLE_DESCRIPTION;
+                modeColor = alpha | ResourceColorManager.getColor(EDITING_MODE_ANGLE);
+            } else if (this.editingMode == EditingMode.DISTANCE) {
+                title = EDITING_MODE_DISTANCE_TITLE;
+                desc = EDITING_MODE_DISTANCE_DESCRIPTION;
+                modeColor = alpha | ResourceColorManager.getColor(EDITING_MODE_DISTANCE);
+            } else if (this.editingMode == EditingMode.OFF) {
+                title = EDITING_MODE_OFF_TITLE;
+                desc = EDITING_MODE_OFF_DESCRIPTION;
+                modeColor = alpha | ResourceColorManager.getColor(EDITING_MODE_OFF);
+            } else {
+                title = Component.empty();
+                desc = Component.empty();
+                modeColor = 0;
+            }
+
+            guiGraphics.drawString(font, title, (width - font.width(title)) / 2, 0, modeColor);
+            guiGraphics.drawString(font, desc, (width - font.width(desc)) / 2, font.lineHeight, textColor);
+            guiGraphics.pose().popPose();
         }
     }
 

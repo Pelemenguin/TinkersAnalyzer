@@ -19,7 +19,7 @@ public final class TinkersAnalyzerButtons {
     private static final String CATEGORY = TinkersAnalyzer.makeTranslationKey("key.categories", "tinkers_analyzer");
 
     public static final KeyMapping SWITCH_LAYOUT_EDITING_MODE = new KeyMapping(
-            TinkersAnalyzer.makeTranslationKey("key", "cycle_layout_editing_mode"),
+            TinkersAnalyzer.makeTranslationKey("key", "toggle_layout_editing_mode"),
             KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_INSERT,

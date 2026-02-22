@@ -1,0 +1,12 @@
+{
+    "analyzer.tinkers_analyzer": {
+        "editing_mode": "#FFE579",
+        "editing_mode.angle": "#E88E60",
+        "editing_mode.distance": "#70C9EE",
+        "editing_mode.off": "#AAAAAA"
+    },
+
+    "modifier.tinkers_analyzer": {
+        "dps_analyzer": "#236FCF"
+    }
+}

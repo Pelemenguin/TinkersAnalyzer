@@ -109,6 +109,8 @@ public class AnalyzerOverlay implements IGuiOverlay {
 
         modelViewStack.popPose();
         RenderSystem.applyModelViewMatrix();
+
+        AnalyzerLayout.INSTANCE.drawEditingModeOverlay(guiGraphics, screenWidth, screenHeight);
     }
 
     public void loadAnalyzer(Analyzer analyzer) {

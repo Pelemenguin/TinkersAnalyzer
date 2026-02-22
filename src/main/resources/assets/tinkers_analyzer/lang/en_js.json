@@ -4,13 +4,19 @@
 
     "modifier.tinkers_analyzer.dps_analyzer": "DPS Analyzer",
 
-        "_comment_texts": " ========== TEXTS ========== ",
+        "_comment_texts": " ========== ANALYZER ========== ",
 
-    "text.tinkers_analyzer.editing_mode.title": "Editing Mode",
-    "text.tinkers_analyzer.editing_mode.description": "Press %1$s to toggle editing mode, press %2$s to switch the selection",
-    "text.tinkers_analyzer.editing_mode.angle.title": "Angle Mode",
-    "text.tinkers_analyzer.editing_mode.angle.description": "Scroll to adjust the graph's angle (horizontal angle while sneaking)",
-    "text.tinkers_analyzer.editing_mode.distance.title": "Distance Mode",
-    "text.tinkers_analyzer.editing_mode.distance.description": "Scroll to adjust the graph's distance"
+    "analyzer.tinkers_analyzer.editing_mode.title": "Editing Mode",
+    "analyzer.tinkers_analyzer.editing_mode.description": "Press %1$s to toggle editing mode, press %2$s to switch the selection",
+    "analyzer.tinkers_analyzer.editing_mode.angle.title": "Angle Mode",
+    "analyzer.tinkers_analyzer.editing_mode.angle.description": "Scroll to adjust the graph's angle (horizontal angle while sneaking)",
+    "analyzer.tinkers_analyzer.editing_mode.distance.title": "Distance Mode",
+    "analyzer.tinkers_analyzer.editing_mode.distance.description": "Scroll to adjust the graph's distance",
+    "analyzer.tinkers_analyzer.editing_mode.off.title": "Off",
+    "analyzer.tinkers_analyzer.editing_mode.off.description": "Quitting layout editing",
+
+        "_comment_keybing": " ========== KEYBINDS ========== ",
+    "key.categories.tinkers_analyzer.tinkers_analyzer": "Tinker's Analyzer",
+    "key.tinkers_analyzer.toggle_layout_editing_mode": "Toggle Analyzer Layout Editing Mode"
 
 }

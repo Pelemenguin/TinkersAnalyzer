@@ -28,4 +28,9 @@ public final class TinkersAnalyzer {
     public static final String makeTranslationKey(String category, String id) {
         return "%s.%s.%s".formatted(category, MODID, id);
     }
+
+    public static final String makeAnalyzerTranslationKey(String id) {
+        return makeTranslationKey("analyzer", id);
+    }
+
 }
