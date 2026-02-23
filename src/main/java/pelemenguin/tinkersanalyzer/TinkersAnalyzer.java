@@ -33,4 +33,8 @@ public final class TinkersAnalyzer {
         return makeTranslationKey("analyzer", id);
     }
 
+    public static final String makeModifierTranslationKey(String id) {
+        return makeTranslationKey("modifier", id);
+    }
+
 }

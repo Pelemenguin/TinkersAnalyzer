@@ -38,46 +38,52 @@ public class DPSGraph extends AnalyzerGraph {
     private float lastDps = 0.0f;
     private float lastAverageDps = 0.0f;
 
+    public static final Component TIME = Component.translatable(TinkersAnalyzer.makeModifierTranslationKey("dps_analyzer.time"));
+    public static final Component DAMAGE_OR_DPS = Component.translatable(TinkersAnalyzer.makeModifierTranslationKey("dps_analyzer.damage_or_dps"));
+    public static final Component LAST_DAMAGE = Component.translatable(TinkersAnalyzer.makeModifierTranslationKey("dps_analyzer.last_damage"));
+    public static final Component DPS = Component.translatable(TinkersAnalyzer.makeModifierTranslationKey("dps_analyzer.dps"));
+    public static final Component AVERAGE_DPS = Component.translatable(TinkersAnalyzer.makeModifierTranslationKey("dps_analyzer.average_dps"));
+
     private DPSGraph(CompoundTag tag) {
         super(tag);
-        this.addElement(new DiagramGraphElement(this, 64, 48)
-                .horizontalAxisName(Component.literal("Time"))
-                .verticalAxisName(Component.literal("Damage / DPS"))
-                .labelHorizontalTick((t) -> "%.1f".formatted(t / 20.0f) + "s")
-                .timeAsHorizontalAxis()
-                .timeOrigin(() -> this.timeOrigin)
-                .domain(-TIME_RANGE, 0.0f)
-                .histogram(this.recentDamages)
-                .lineGraph(this.dps)
-                .colorLastDiagram(DPS_COLOR)
-                .lineGraph(this.averageDps)
-                .colorLastDiagram(AVERAGE_DPS_COLOR)
-                .autoYRange(0f, 2f, true, false)
-            );
+        DiagramGraphElement diagram = new DiagramGraphElement(this, 64, 48)
+            .horizontalAxisName(TIME)
+            .verticalAxisName(DAMAGE_OR_DPS)
+            .labelHorizontalTick((t) -> "%.1f".formatted(t / 20.0f) + "s")
+            .timeAsHorizontalAxis()
+            .timeOrigin(() -> this.timeOrigin)
+            .domain(-TIME_RANGE, 0.0f)
+            .histogram(this.recentDamages)
+            .lineGraph(this.dps)
+            .colorLastDiagram(DPS_COLOR)
+            .lineGraph(this.averageDps)
+            .colorLastDiagram(AVERAGE_DPS_COLOR)
+            .autoYRange(0f, 2f, true, false);
+        this.addElement(diagram);
 
         TaggedTextGraphElement lastDamage = new TaggedTextGraphElement(() -> Component.literal(
                 this.recentDamages.isEmpty() ? "-" : DiagramGraphElement.DEFAULT_LABEL_FORMAT.getTickLabel(this.recentDamages.peekLast().y())
             ))
             .colored(this.getColor())
-            .tagBelow(Component.literal("LD"));
-        lastDamage.x = 68;
-        lastDamage.y = 0;
+            .tagBelow(LAST_DAMAGE);
+        lastDamage.x = diagram.getWidth() + 1;
+        lastDamage.y = diagram.y;
         lastDamage.scale = 2.0f;
         this.addElement(lastDamage);
 
         TaggedTextGraphElement curDps = new TaggedTextGraphElement(() -> Component.literal(DiagramGraphElement.DEFAULT_LABEL_FORMAT.getTickLabel(this.lastDps)))
             .colored(DPS_COLOR)
-            .tagBelow(Component.literal("DPS"));
-        curDps.x = 68;
-        curDps.y = 16;
+            .tagBelow(DPS);
+        curDps.x = lastDamage.x;
+        curDps.y = diagram.y + 16;
         curDps.scale = 2.0f;
         this.addElement(curDps);
 
         TaggedTextGraphElement averageDps = new TaggedTextGraphElement(() -> Component.literal(DiagramGraphElement.DEFAULT_LABEL_FORMAT.getTickLabel(this.lastAverageDps)))
             .colored(AVERAGE_DPS_COLOR)
-            .tagBelow(Component.literal("Avg. DPS"));
-        averageDps.x = 68;
-        averageDps.y = 32;
+            .tagBelow(AVERAGE_DPS);
+        averageDps.x = curDps.x;
+        averageDps.y = diagram.y + 32;
         averageDps.scale = 2.0f;
         this.addElement(averageDps);
     }

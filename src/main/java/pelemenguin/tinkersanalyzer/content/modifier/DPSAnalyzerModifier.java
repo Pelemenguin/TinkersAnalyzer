@@ -24,13 +24,13 @@ import pelemenguin.tinkersanalyzer.content.network.TinkersAnalyzerNetwork;
 import pelemenguin.tinkersanalyzer.library.Analyzer;
 import pelemenguin.tinkersanalyzer.library.AnalyzerLayoutEntry;
 import pelemenguin.tinkersanalyzer.library.hook.DisplayAnalyzerGraphModifierHook;
-import slimeknights.tconstruct.library.modifiers.Modifier;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
+import slimeknights.tconstruct.library.modifiers.impl.NoLevelsModifier;
 import slimeknights.tconstruct.library.module.ModuleHookMap.Builder;
 import slimeknights.tconstruct.library.tools.nbt.IToolStackView;
 
 @EventBusSubscriber(modid = TinkersAnalyzer.MODID, bus = Bus.FORGE)
-public class DPSAnalyzerModifier extends Modifier implements DisplayAnalyzerGraphModifierHook {
+public class DPSAnalyzerModifier extends NoLevelsModifier implements DisplayAnalyzerGraphModifierHook {
 
     public static final UUID GRAPH_UUID = UUID.fromString("291b4f42-6559-4bda-be8f-508329b7cffc");
 

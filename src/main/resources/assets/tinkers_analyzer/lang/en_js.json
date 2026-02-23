@@ -3,6 +3,11 @@
         "_comment_modifiers": " ========== MODIFIERS ========== ",
 
     "modifier.tinkers_analyzer.dps_analyzer": "DPS Analyzer",
+    "modifier.tinkers_analyzer.dps_analyzer.time": "Time",
+    "modifier.tinkers_analyzer.dps_analyzer.damage_or_dps": "Damage / DPS",
+    "modifier.tinkers_analyzer.dps_analyzer.last_damage": "Last Dmg.",
+    "modifier.tinkers_analyzer.dps_analyzer.dps": "DPS",
+    "modifier.tinkers_analyzer.dps_analyzer.average_dps": "Avg. DPS",
 
         "_comment_texts": " ========== ANALYZER ========== ",
 

@@ -16,6 +16,7 @@ public class PlainTextGraph extends AnalyzerGraph {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void load(CompoundTag tag) {
         super.load(tag);
         if (this.text == null) {

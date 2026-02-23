@@ -117,6 +117,11 @@ public class AnalyzerLayout {
         AnalyzerLayoutConfig.saveConfig(this.entries);
     }
 
+    public void forceDisableEditingMode() {
+        this.editingMode = EditingMode.OFF;
+        this.disableEditingMode();
+    }
+
     public void cycleEditingMode() {
         switch (this.editingMode) {
             case OFF: {
@@ -263,8 +268,9 @@ public class AnalyzerLayout {
             Font font = Minecraft.getInstance().font;
 
             int alpha = Mth.ceil(255 * this.editingModeEnableProgress) << 24;
+            if (alpha == 0) return;
             int editingModeColor = alpha | ResourceColorManager.getColor(EDITING_MODE);
-            @SuppressWarnings("null") // ChatFormatting.GRAY always has color
+            @SuppressWarnings("null") // ChatFormatting.WHITE always has color
             int textColor = alpha | ChatFormatting.WHITE.getColor().intValue();
 
             float displacement = font.lineHeight * (3 * this.editingModeEnableProgress - 2);

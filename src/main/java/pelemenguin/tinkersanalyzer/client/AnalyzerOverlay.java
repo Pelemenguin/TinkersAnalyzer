@@ -71,44 +71,50 @@ public class AnalyzerOverlay implements IGuiOverlay {
                 }
             }
 
-            if (this.analyzer.isEmpty()) return;
-            this.loadAnalyzer(this.analyzer);
+            if (this.analyzer.isEmpty()) {
+                this.graphs.clear();
+                AnalyzerLayout.INSTANCE.forceDisableEditingMode();
+            } else {
+                this.loadAnalyzer(this.analyzer);
+            }
             this.needUpdate = false;
         }
         AnalyzerLayout.INSTANCE.load(this.analyzer);
 
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
-        pose.setIdentity();
-
-        Matrix4f old = RenderSystem.getProjectionMatrix();
-        Window window = Minecraft.getInstance().getWindow();
-        Matrix4f matrix = new Matrix4f().setPerspective((float) Math.toRadians(Minecraft.getInstance().options.fov().get()), (float) window.getWidth() / window.getHeight(), 0.05f, 11000.0f);
-
-        RenderSystem.setProjectionMatrix(matrix, VertexSorting.DISTANCE_TO_ORIGIN);
-
-        PoseStack modelViewStack = RenderSystem.getModelViewStack();
-        modelViewStack.pushPose();
-        modelViewStack.setIdentity();
-        modelViewStack.scale(0.03125f, -0.03125f, 0.03125f);
-        RenderSystem.applyModelViewMatrix();
-
-        AnalyzerLayout.INSTANCE.pushTransformation(pose);
-
-        for (var graphEntry : this.graphs.entrySet()) {
-            UUID graphKey = graphEntry.getKey();
-            AnalyzerGraph graph = graphEntry.getValue();
+        if (!this.analyzer.isEmpty()) {
+            PoseStack pose = guiGraphics.pose();
             pose.pushPose();
-            AnalyzerLayout.INSTANCE.transformGraph(pose, graphKey, graph);
-            graph.render(guiGraphics, AnalyzerLayout.INSTANCE.isSelected(graphKey));
+            pose.setIdentity();
+
+            Matrix4f old = RenderSystem.getProjectionMatrix();
+            Window window = Minecraft.getInstance().getWindow();
+            Matrix4f matrix = new Matrix4f().setPerspective((float) Math.toRadians(Minecraft.getInstance().options.fov().get()), (float) window.getWidth() / window.getHeight(), 0.05f, 11000.0f);
+
+            RenderSystem.setProjectionMatrix(matrix, VertexSorting.DISTANCE_TO_ORIGIN);
+
+            PoseStack modelViewStack = RenderSystem.getModelViewStack();
+            modelViewStack.pushPose();
+            modelViewStack.setIdentity();
+            modelViewStack.scale(0.03125f, -0.03125f, 0.03125f);
+            RenderSystem.applyModelViewMatrix();
+
+            AnalyzerLayout.INSTANCE.pushTransformation(pose);
+
+            for (var graphEntry : this.graphs.entrySet()) {
+                UUID graphKey = graphEntry.getKey();
+                AnalyzerGraph graph = graphEntry.getValue();
+                pose.pushPose();
+                AnalyzerLayout.INSTANCE.transformGraph(pose, graphKey, graph);
+                graph.render(guiGraphics, AnalyzerLayout.INSTANCE.isSelected(graphKey));
+                pose.popPose();
+            }
+
+            RenderSystem.setProjectionMatrix(old, VertexSorting.ORTHOGRAPHIC_Z);
             pose.popPose();
+
+            modelViewStack.popPose();
+            RenderSystem.applyModelViewMatrix();
         }
-
-        RenderSystem.setProjectionMatrix(old, VertexSorting.ORTHOGRAPHIC_Z);
-        pose.popPose();
-
-        modelViewStack.popPose();
-        RenderSystem.applyModelViewMatrix();
 
         AnalyzerLayout.INSTANCE.drawEditingModeOverlay(guiGraphics, screenWidth, screenHeight);
     }
