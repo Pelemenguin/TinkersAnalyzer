@@ -15,10 +15,10 @@ public class AnalyzerGraph {
 
     List<AnalyzerGraphElement> elements = new ArrayList<>();
 
-    int color;
+    protected int color;
 
-    int width = -1;
-    int height = -1;
+    protected int width = -1;
+    protected int height = -1;
 
     public AnalyzerGraph(CompoundTag tag) {
         this.load(tag);
@@ -28,8 +28,8 @@ public class AnalyzerGraph {
         this.color = tag.getInt("color");
     }
 
-    private static final int BACKGROUND_ALPGA = 31;
-    private static final int BACKGROUND_ALPHA_SELECTED = 127;
+    protected static final int BACKGROUND_ALPGA = 31;
+    protected static final int BACKGROUND_ALPHA_SELECTED = 127;
 
     private float selectProgress = 0.0f;
     private void drawBackground(GuiGraphics guiGraphics) {

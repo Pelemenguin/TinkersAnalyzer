@@ -134,7 +134,9 @@ public final class QuadHelper {
      */
     public static void drawAxisAlignedBorderedQuad(float x1, float y1, float x2, float y2, float borderWidth, Matrix4f matrix, int colorInner, int colorBorder) {
         assertStatus(true);
-        drawAxisAlignedQuad(x1, y1, x2, y2, matrix, colorInner);
+        if (colorInner != 0) {
+            drawAxisAlignedQuad(x1, y1, x2, y2, matrix, colorInner);
+        }
 
         drawAxisAlignedQuad(x1, y1, x2, y1 + borderWidth, matrix, colorBorder); // Top
         drawAxisAlignedQuad(x1, y2 - borderWidth, x2, y2, matrix, colorBorder); // Bottom

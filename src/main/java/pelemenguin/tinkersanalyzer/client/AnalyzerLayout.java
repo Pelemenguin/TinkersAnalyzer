@@ -118,6 +118,7 @@ public class AnalyzerLayout {
     }
 
     public void forceDisableEditingMode() {
+        if (this.editingMode == EditingMode.OFF) return;
         this.editingMode = EditingMode.OFF;
         this.disableEditingMode();
     }

@@ -9,6 +9,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -40,7 +41,7 @@ public class DPSAnalyzerModifier extends NoLevelsModifier implements DisplayAnal
     }
 
     @Override
-    public void addGraph(IToolStackView tool, ModifierEntry modifier, Analyzer analyzer) {
+    public void addGraph(IToolStackView tool, ModifierEntry modifier, EquipmentSlot slot, Analyzer analyzer) {
         analyzer.createOrGetGraphData(GRAPH_UUID, TinkersAnalyzerGraphs.DPS, new AnalyzerLayoutEntry(30.0f, -10.0f, 192.0f));
     }
 

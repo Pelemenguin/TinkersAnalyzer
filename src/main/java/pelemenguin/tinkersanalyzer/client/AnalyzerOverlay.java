@@ -20,6 +20,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
@@ -66,7 +67,7 @@ public class AnalyzerOverlay implements IGuiOverlay {
                 for (ModifierEntry entry : toolStack.getModifierList()) {
                     DisplayAnalyzerGraphModifierHook hook = entry.getHook(DisplayAnalyzerGraphModifierHook.INSTANCE);
                     if (hook != null) {
-                        hook.addGraph(toolStack, entry, this.analyzer);
+                        hook.addGraph(toolStack, entry, EquipmentSlot.MAINHAND, this.analyzer);
                     }
                 }
             }

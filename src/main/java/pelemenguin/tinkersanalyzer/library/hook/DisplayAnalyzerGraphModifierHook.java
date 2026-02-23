@@ -2,6 +2,7 @@ package pelemenguin.tinkersanalyzer.library.hook;
 
 import java.util.Collection;
 
+import net.minecraft.world.entity.EquipmentSlot;
 import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
 import pelemenguin.tinkersanalyzer.library.Analyzer;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
@@ -19,15 +20,16 @@ public interface DisplayAnalyzerGraphModifierHook {
      * 
      * @param tool     Tool instance
      * @param modifier The modifier and level
+     * @param slot     The {@link EquipmentSlot}
      * @param analyzer An {@link pelemenguin.tinkersanalyzer.library.Analyzer Analyzer} instance for collecting analyzer graphs
      */
-    void addGraph(IToolStackView tool, ModifierEntry modifier, Analyzer analyzer);
+    void addGraph(IToolStackView tool, ModifierEntry modifier, EquipmentSlot slot, Analyzer analyzer);
 
     record AllMerger(Collection<DisplayAnalyzerGraphModifierHook> modules) implements DisplayAnalyzerGraphModifierHook {
         @Override
-        public void addGraph(IToolStackView tool, ModifierEntry modifier, Analyzer analyzer) {
+        public void addGraph(IToolStackView tool, ModifierEntry modifier, EquipmentSlot slot, Analyzer analyzer) {
              for (DisplayAnalyzerGraphModifierHook module : this.modules) {
-                 module.addGraph(tool, modifier, analyzer);
+                 module.addGraph(tool, modifier, slot, analyzer);
              }
         }
     }
@@ -39,7 +41,7 @@ public interface DisplayAnalyzerGraphModifierHook {
             TinkersAnalyzer.makeResource("display_analyzer_graph"),
             DisplayAnalyzerGraphModifierHook.class,
             AllMerger::new,
-            (tool, entry, analyzer) -> {}
+            (tool, entry, slot, analyzer) -> {}
         );
 
 }
