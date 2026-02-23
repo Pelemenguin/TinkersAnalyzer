@@ -7,6 +7,7 @@ import org.joml.Matrix4f;
 import pelemenguin.tinkersanalyzer.client.util.render.RotationHelper;
 
 public class AnalyzerLayoutEntry {
+
     /**
      * Horizontal rotation angle.
      * When it aligns with the player's view, the angle is 0 degrees.
@@ -31,6 +32,9 @@ public class AnalyzerLayoutEntry {
 
     private boolean matrixNeedsUpdate = true;
     private Matrix4f transformationMatrix = new Matrix4f();
+
+    public static final float MIN_DISTANCE = 16.0f;
+    public static final float MAX_DISTANCE = 512.0f;
 
     public AnalyzerLayoutEntry(float yaw, float pitch, float r) {
         this.yaw = yaw;
@@ -64,10 +68,10 @@ public class AnalyzerLayoutEntry {
 
     public void addR(float r) {
         this.r += r;
-        if (this.r < 16) {
-            this.r = 16;
-        } else if (this.r > 512) {
-            this.r = 512;
+        if (this.r < MIN_DISTANCE) {
+            this.r = MIN_DISTANCE;
+        } else if (this.r > MAX_DISTANCE) {
+            this.r = MAX_DISTANCE;
         }
         this.matrixNeedsUpdate = true;
     }

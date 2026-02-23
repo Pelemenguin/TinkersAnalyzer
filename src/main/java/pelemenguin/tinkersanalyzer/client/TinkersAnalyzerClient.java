@@ -4,8 +4,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraftforge.fml.config.ModConfig.Type;
 import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
 import pelemenguin.tinkersanalyzer.content.client.TinkersAnalyzerBuiltinGraphs;
 
@@ -19,6 +21,8 @@ public final class TinkersAnalyzerClient {
 
     public static void init() {
         TinkersAnalyzerBuiltinGraphs.init();
+        AnalyzerLayoutConfig.init();
+        ModLoadingContext.get().registerConfig(Type.CLIENT, AnalyzerLayoutConfig.spec());
     }
 
 }

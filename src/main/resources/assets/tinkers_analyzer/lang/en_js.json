@@ -13,7 +13,7 @@
     "analyzer.tinkers_analyzer.editing_mode.distance.title": "Distance Mode",
     "analyzer.tinkers_analyzer.editing_mode.distance.description": "Scroll to adjust the graph's distance",
     "analyzer.tinkers_analyzer.editing_mode.off.title": "Off",
-    "analyzer.tinkers_analyzer.editing_mode.off.description": "Quitting layout editing",
+    "analyzer.tinkers_analyzer.editing_mode.off.description": "Quitting editing and saving layout",
 
         "_comment_keybing": " ========== KEYBINDS ========== ",
     "key.categories.tinkers_analyzer.tinkers_analyzer": "Tinker's Analyzer",

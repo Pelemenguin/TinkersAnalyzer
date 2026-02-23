@@ -13,7 +13,7 @@
     "analyzer.tinkers_analyzer.editing_mode.distance.title": "距离模式",
     "analyzer.tinkers_analyzer.editing_mode.distance.description": "滚动鼠标以调整图表距离",
     "analyzer.tinkers_analyzer.editing_mode.off.title": "关闭",
-    "analyzer.tinkers_analyzer.editing_mode.off.description": "正在退出布局编辑",
+    "analyzer.tinkers_analyzer.editing_mode.off.description": "正在退出编辑并保存布局",
 
         "_comment_keybing": " ========== 键位 ========== ",
     "key.categories.tinkers_analyzer.tinkers_analyzer": "工匠分析仪",

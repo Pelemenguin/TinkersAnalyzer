@@ -7,7 +7,10 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import org.joml.Matrix4f;
+import org.slf4j.Logger;
+
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -31,6 +34,8 @@ import slimeknights.mantle.client.ResourceColorManager;
 
 @Mod.EventBusSubscriber(bus = Bus.FORGE, modid = TinkersAnalyzer.MODID, value = Dist.CLIENT)
 public class AnalyzerLayout {
+
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final AnalyzerLayout INSTANCE = new AnalyzerLayout();
     private HashMap<UUID, AnalyzerLayoutEntry> entries = new HashMap<>();
@@ -60,6 +65,10 @@ public class AnalyzerLayout {
             Matrix4f layoutMatrix = this.getLayoutFor(uuid).getTransformationMatrix();
             this.cachedMatrices.put(uuid, this.cachedMatrices.getOrDefault(uuid, new Matrix4f()).set(layoutMatrix));
         }
+    }
+
+    public void loadFromConfig() {
+        AnalyzerLayoutConfig.loadConfig(entries);
     }
 
     public AnalyzerLayoutEntry getLayoutFor(UUID uuid) {
@@ -104,6 +113,8 @@ public class AnalyzerLayout {
         this.initYaw = 0.0f;
         this.availableGraphUUIDs = null;
         this.selectedGraph = null;
+
+        AnalyzerLayoutConfig.saveConfig(this.entries);
     }
 
     public void cycleEditingMode() {
