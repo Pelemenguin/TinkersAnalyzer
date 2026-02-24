@@ -59,15 +59,17 @@ public class AnalyzerOverlay implements IGuiOverlay {
         final LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         if (this.needUpdate) {
-            ItemStack mainHandItemStack = player.getMainHandItem();
-            Item mainHandItem = mainHandItemStack.getItem();
             this.analyzer.clear();
-            if (mainHandItem instanceof IModifiable) {
-                ToolStack toolStack = ToolStack.from(mainHandItemStack);
-                for (ModifierEntry entry : toolStack.getModifierList()) {
-                    DisplayAnalyzerGraphModifierHook hook = entry.getHook(DisplayAnalyzerGraphModifierHook.INSTANCE);
-                    if (hook != null) {
-                        hook.addGraph(toolStack, entry, EquipmentSlot.MAINHAND, this.analyzer);
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                ItemStack itemStack = player.getItemBySlot(slot);
+                Item item = itemStack.getItem();
+                if (item instanceof IModifiable) {
+                    ToolStack toolStack = ToolStack.from(itemStack);
+                    for (ModifierEntry entry : toolStack.getModifierList()) {
+                        DisplayAnalyzerGraphModifierHook hook = entry.getHook(DisplayAnalyzerGraphModifierHook.INSTANCE);
+                        if (hook != null) {
+                            hook.addGraph(toolStack, entry, slot, this.analyzer);
+                        }
                     }
                 }
             }

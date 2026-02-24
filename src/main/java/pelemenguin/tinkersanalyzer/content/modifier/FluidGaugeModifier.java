@@ -34,8 +34,8 @@ public class FluidGaugeModifier extends NoLevelsModifier implements DisplayAnaly
 
     @Override
     public void addGraph(IToolStackView tool, ModifierEntry modifier, EquipmentSlot slot, Analyzer analyzer) {
-        CompoundTag arg = analyzer.createOrGetGraphData(GRAPH_UUID, TinkersAnalyzerGraphs.FLUID_GAUGE, new AnalyzerLayoutEntry(-45, 5, 220));
         if (ToolTankHelper.TANK_HELPER.getCapacity(tool) > 0) {
+            CompoundTag arg = analyzer.createOrGetGraphData(GRAPH_UUID, TinkersAnalyzerGraphs.FLUID_GAUGE, new AnalyzerLayoutEntry(-25, 15, 220));
             TinkersAnalyzerGraphs.fluidGaugeGraphData(arg, slot, type);
         }
     }
