@@ -3,11 +3,21 @@
         "_comment_modifiers": " ========== MODIFIERS ========== ",
 
     "modifier.tinkers_analyzer.dps_analyzer": "DPS Analyzer",
+    "modifier.tinkers_analyzer.dps_analyzer.flavor": "Let me see your DPS...",
+    "modifier.tinkers_analyzer.dps_analyzer.description": "Display your last damage, current DPS, and average DPS on a graph",
     "modifier.tinkers_analyzer.dps_analyzer.time": "Time",
     "modifier.tinkers_analyzer.dps_analyzer.damage_or_dps": "Damage / DPS",
     "modifier.tinkers_analyzer.dps_analyzer.last_damage": "Last Dmg.",
     "modifier.tinkers_analyzer.dps_analyzer.dps": "DPS",
     "modifier.tinkers_analyzer.dps_analyzer.average_dps": "Avg. DPS",
+
+    "modifier.tinkers_analyzer.copper_gauge": "Copper Gauge",
+    "modifier.tinkers_analyzer.copper_gauge.flavor": "Watching carefully...",
+    "modifier.tinkers_analyzer.copper_gauge.description": "Display the amount of the fluid in your tool",
+    "modifier.tinkers_analyzer.obsidian_gauge": "Obsidian Gauge",
+    "modifier.tinkers_analyzer.obsidian_gauge.flavor": "See right through!",
+    "modifier.tinkers_analyzer.obsidian_gauge.description": "Display the type and the amount of the fluid in your tool",
+    "modifier.tinkers_analyzer.gauge.error": "This tool doesn't have a fluid tank!",
 
         "_comment_texts": " ========== ANALYZER ========== ",
 
@@ -21,6 +31,7 @@
     "analyzer.tinkers_analyzer.editing_mode.off.description": "Quitting editing and saving layout",
 
         "_comment_keybing": " ========== KEYBINDS ========== ",
+
     "key.categories.tinkers_analyzer.tinkers_analyzer": "Tinker's Analyzer",
     "key.tinkers_analyzer.toggle_layout_editing_mode": "Toggle Analyzer Layout Editing Mode"
 

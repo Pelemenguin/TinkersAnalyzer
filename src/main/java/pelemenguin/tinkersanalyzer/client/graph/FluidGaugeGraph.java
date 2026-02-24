@@ -17,6 +17,7 @@ import pelemenguin.tinkersanalyzer.client.graph.element.ProgressBarGraphElement;
 import pelemenguin.tinkersanalyzer.client.graph.element.TaggedTextGraphElement;
 import pelemenguin.tinkersanalyzer.client.util.NumberFormatter;
 import pelemenguin.tinkersanalyzer.content.modifier.FluidGaugeModifier.GaugeType;
+import slimeknights.mantle.client.ResourceColorManager;
 import slimeknights.tconstruct.library.tools.capability.fluid.ToolTankHelper;
 import slimeknights.tconstruct.library.tools.item.IModifiable;
 import slimeknights.tconstruct.library.tools.nbt.ToolStack;
@@ -32,6 +33,7 @@ public class FluidGaugeGraph extends AnalyzerGraph {
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        this.color = ResourceColorManager.getColor("modifier.tconstruct.tank");
         this.elements.clear();
         CompoundTag slotList = tag.getCompound("slots");
 

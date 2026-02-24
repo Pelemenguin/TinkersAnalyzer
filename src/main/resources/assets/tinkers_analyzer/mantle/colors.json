@@ -7,6 +7,8 @@
     },
 
     "modifier.tinkers_analyzer": {
-        "dps_analyzer": "#236FCF"
+        "dps_analyzer": "#236FCF",
+        "copper_gauge": "#FFA475",
+        "obsidian_gauge": "#3C3666"
     }
 }

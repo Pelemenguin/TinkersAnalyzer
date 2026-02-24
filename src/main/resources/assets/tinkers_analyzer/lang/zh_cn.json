@@ -3,11 +3,22 @@
         "_comment_modifiers": " ========== 强化 ========== ",
 
     "modifier.tinkers_analyzer.dps_analyzer": "DPS分析仪",
+    "modifier.tinkers_analyzer.dps_analyzer.flavor": "看看你的DPS……",
+    "modifier.tinkers_analyzer.dps_analyzer.description": "使用图表显示你的上次伤害，当前DPS，与平均DPS",
     "modifier.tinkers_analyzer.dps_analyzer.time": "时间",
     "modifier.tinkers_analyzer.dps_analyzer.damage_or_dps": "伤害 / DPS",
     "modifier.tinkers_analyzer.dps_analyzer.last_damage": "上次伤害",
     "modifier.tinkers_analyzer.dps_analyzer.dps": "DPS",
     "modifier.tinkers_analyzer.dps_analyzer.average_dps": "平均DPS",
+
+    "modifier.tinkers_analyzer.copper_gauge": "铜量计",
+    "modifier.tinkers_analyzer.copper_gauge.flavor": "仔细观察……",
+    "modifier.tinkers_analyzer.copper_gauge.description": "显示当前工具中的流体数量",
+    "modifier.tinkers_analyzer.copper_gauge.error": "铜量计强化不能在黑曜石量计强化存在时添加",
+    "modifier.tinkers_analyzer.obsidian_gauge": "黑曜石量计",
+    "modifier.tinkers_analyzer.obsidian_gauge.flavor": "一眼望穿！",
+    "modifier.tinkers_analyzer.obsidian_gauge.description": "显示当前工具中的流体种类与数量",
+    "modifier.tinkers_analyzer.gauge.error": "该工具没有流体储罐！",
 
         "_comment_texts": " ========== 分析仪 ========== ",
 
