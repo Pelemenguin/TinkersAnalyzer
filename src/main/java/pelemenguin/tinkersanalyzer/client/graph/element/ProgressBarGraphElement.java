@@ -1,5 +1,7 @@
 package pelemenguin.tinkersanalyzer.client.graph.element;
 
+import javax.annotation.Nullable;
+
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -18,6 +20,7 @@ public class ProgressBarGraphElement extends AnalyzerGraphElement {
     boolean vertical;
     boolean reversed;
 
+    @Nullable
     protected ProgressBar progressBar;
 
     public ProgressBarGraphElement(AnalyzerGraph parent, int barLength, boolean vertical, boolean reversed) {
@@ -37,6 +40,9 @@ public class ProgressBarGraphElement extends AnalyzerGraphElement {
 
     @Override
     public void draw(GuiGraphics guiGraphics) {
+        ProgressBar progressBar = this.progressBar;
+        if (progressBar == null) return;
+
         PoseStack pose = guiGraphics.pose();
         Matrix4f matrix = pose.last().pose();
 
@@ -45,16 +51,16 @@ public class ProgressBarGraphElement extends AnalyzerGraphElement {
         if (this.vertical) {
             QuadHelper.drawAxisAlignedBorderedQuad(0, 0, BAR_WIDTH + 2, this.barLength + 2, 1, matrix, 0, 0xFF000000 | this.color);
             if (this.reversed) {
-                QuadHelper.drawAxisAlignedQuad(1, 1, BAR_WIDTH + 1, this.progressBar.getProgress(this) + 1, matrix, CONTENT_ALPHA | this.color);
+                QuadHelper.drawAxisAlignedQuad(1, 1, BAR_WIDTH + 1, progressBar.getProgress(this) + 1, matrix, CONTENT_ALPHA | this.color);
             } else {
-                QuadHelper.drawAxisAlignedQuad(1, this.barLength - this.progressBar.getProgress(this) + 1, BAR_WIDTH + 1, this.barLength + 1, matrix, CONTENT_ALPHA | this.color);
+                QuadHelper.drawAxisAlignedQuad(1, this.barLength - progressBar.getProgress(this) + 1, BAR_WIDTH + 1, this.barLength + 1, matrix, CONTENT_ALPHA | this.color);
             }
         } else {
             QuadHelper.drawAxisAlignedBorderedQuad(0, 0, this.barLength + 2, BAR_WIDTH + 2, 1, matrix, 0, 0xFF000000 | this.color);
             if (this.reversed) {
-                QuadHelper.drawAxisAlignedQuad(this.barLength - this.progressBar.getProgress(this) + 1, 1, this.barLength + 1, BAR_WIDTH + 1, matrix, CONTENT_ALPHA | this.color);
+                QuadHelper.drawAxisAlignedQuad(this.barLength - progressBar.getProgress(this) + 1, 1, this.barLength + 1, BAR_WIDTH + 1, matrix, CONTENT_ALPHA | this.color);
             } else {
-                QuadHelper.drawAxisAlignedQuad(1, 1, this.progressBar.getProgress(this) + 1, BAR_WIDTH + 1, matrix, CONTENT_ALPHA | this.color);
+                QuadHelper.drawAxisAlignedQuad(1, 1, progressBar.getProgress(this) + 1, BAR_WIDTH + 1, matrix, CONTENT_ALPHA | this.color);
             }
         }
 

@@ -62,7 +62,7 @@ public class DPSGraph extends AnalyzerGraph {
         this.addElement(diagram);
 
         TaggedTextGraphElement lastDamage = new TaggedTextGraphElement(() -> Component.literal(
-                this.recentDamages.isEmpty() ? "-" : DiagramGraphElement.DEFAULT_LABEL_FORMAT.getTickLabel(this.recentDamages.peekLast().y())
+                this.recentDamages.isEmpty() ? "-" : DiagramGraphElement.DEFAULT_LABEL_FORMAT.formatNumber(this.recentDamages.peekLast().y())
             ))
             .colored(this.getColor())
             .tagBelow(LAST_DAMAGE);
@@ -71,7 +71,7 @@ public class DPSGraph extends AnalyzerGraph {
         lastDamage.scale = 2.0f;
         this.addElement(lastDamage);
 
-        TaggedTextGraphElement curDps = new TaggedTextGraphElement(() -> Component.literal(DiagramGraphElement.DEFAULT_LABEL_FORMAT.getTickLabel(this.lastDps)))
+        TaggedTextGraphElement curDps = new TaggedTextGraphElement(() -> Component.literal(DiagramGraphElement.DEFAULT_LABEL_FORMAT.formatNumber(this.lastDps)))
             .colored(DPS_COLOR)
             .tagBelow(DPS);
         curDps.x = lastDamage.x;
@@ -79,7 +79,7 @@ public class DPSGraph extends AnalyzerGraph {
         curDps.scale = 2.0f;
         this.addElement(curDps);
 
-        TaggedTextGraphElement averageDps = new TaggedTextGraphElement(() -> Component.literal(DiagramGraphElement.DEFAULT_LABEL_FORMAT.getTickLabel(this.lastAverageDps)))
+        TaggedTextGraphElement averageDps = new TaggedTextGraphElement(() -> Component.literal(DiagramGraphElement.DEFAULT_LABEL_FORMAT.formatNumber(this.lastAverageDps)))
             .colored(AVERAGE_DPS_COLOR)
             .tagBelow(AVERAGE_DPS);
         averageDps.x = curDps.x;

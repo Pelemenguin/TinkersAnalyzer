@@ -23,13 +23,14 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
+import pelemenguin.tinkersanalyzer.client.util.NumberFormatter;
 import pelemenguin.tinkersanalyzer.client.util.render.LineHelper;
 import pelemenguin.tinkersanalyzer.client.util.render.QuadHelper;
 
 public class DiagramGraphElement extends AnalyzerGraphElement {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final AxisTickLabel DEFAULT_LABEL_FORMAT = (x) -> {
+    public static final NumberFormatter DEFAULT_LABEL_FORMAT = (x) -> {
         float abs = Mth.abs(x);
         if (abs >= 1e7f) {
             return "%.1E".formatted(x);
@@ -48,7 +49,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         }
     };
 
-    private static final AxisTickLabel DEFAULT_TICK_LABEL = DEFAULT_LABEL_FORMAT;
+    private static final NumberFormatter DEFAULT_TICK_LABEL = DEFAULT_LABEL_FORMAT;
     private static final float SMOOTH_FACTOR = 0.1f;
     private static final float VERTICAL_AXIS_BOUND_MULIPLIER = 1.2f;
 
@@ -70,8 +71,8 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
     boolean fixMaxY = true;
     boolean horizontalAxisIsTime;
     LongSupplier timeOrigin = () -> 0;
-    AxisTickLabel horizontalTickLabel = DEFAULT_TICK_LABEL;
-    AxisTickLabel verticalTickLabel = DEFAULT_TICK_LABEL;
+    NumberFormatter horizontalTickLabel = DEFAULT_TICK_LABEL;
+    NumberFormatter verticalTickLabel = DEFAULT_TICK_LABEL;
 
     float targetMinY;
     float targetMaxY;
@@ -232,7 +233,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             QuadHelper.drawAxisAlignedQuad(curX, 0, curX + width, this.height, matrix, color);
             QuadHelper.finishDrawQuads();
 
-            Component toDraw = Component.literal(this.horizontalTickLabel.getTickLabel(i));
+            Component toDraw = Component.literal(this.horizontalTickLabel.formatNumber(i));
             if (curX + 0.25f * font.width(toDraw) > horizontalAxisNameWidth) continue;
             pose.pushPose();
             pose.translate(curX + 1, this.height - 1, 0);
@@ -254,7 +255,7 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
             pose.pushPose();
             pose.translate(1, curY, 0);
             pose.scale(0.25f, 0.25f, 1f);
-            guiGraphics.drawString(font, Component.literal(this.verticalTickLabel.getTickLabel(j)), 1, -lineHeight - 1, this.parent.getColor(), false);
+            guiGraphics.drawString(font, Component.literal(this.verticalTickLabel.formatNumber(j)), 1, -lineHeight - 1, this.parent.getColor(), false);
             pose.popPose();
         }
 
@@ -366,17 +367,12 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
         return this;
     }
 
-    @FunctionalInterface
-    public static interface AxisTickLabel {
-        String getTickLabel(float x);
-    }
-
-    public DiagramGraphElement labelHorizontalTick(AxisTickLabel function) {
+    public DiagramGraphElement labelHorizontalTick(NumberFormatter function) {
         this.horizontalTickLabel = function;
         return this;
     }
 
-    public DiagramGraphElement labelVerticalTick(AxisTickLabel function) {
+    public DiagramGraphElement labelVerticalTick(NumberFormatter function) {
         this.verticalTickLabel = function;
         return this;
     }

@@ -48,6 +48,9 @@ public class FluidTankBarGraphElement extends ProgressBarGraphElement {
 
     @Override
     public void draw(GuiGraphics guiGraphics) {
+        ProgressBar progressBar = this.progressBar;
+        if (progressBar == null) return;
+
         PoseStack pose = guiGraphics.pose();
         Matrix4f matrix = pose.last().pose();
 
@@ -61,26 +64,26 @@ public class FluidTankBarGraphElement extends ProgressBarGraphElement {
             QuadHelper.drawAxisAlignedBorderedQuad(0, 0, BAR_WIDTH + 2, this.barLength + 2, 1, matrix, 0, 0xFF000000 | this.color);
             if (this.atBottom()) {
                 x1 = 1;
-                y1 = this.barLength - this.progressBar.getProgress(this) + 1;
+                y1 = this.barLength - progressBar.getProgress(this) + 1;
                 x2 = BAR_WIDTH + 1;
                 y2 = this.barLength + 1;
             } else {
                 x1 = 1;
                 y1 = 1;
                 x2 = BAR_WIDTH + 1;
-                y2 = this.progressBar.getProgress(this) + 1;
+                y2 = progressBar.getProgress(this) + 1;
             }
         } else {
             QuadHelper.drawAxisAlignedBorderedQuad(0, 0, this.barLength + 2, BAR_WIDTH + 2, 1, matrix, 0, 0xFF000000 | this.color);
             if (this.reversed) {
-                x1 = this.barLength - this.progressBar.getProgress(this) + 1;
+                x1 = this.barLength - progressBar.getProgress(this) + 1;
                 y1 = 1;
                 x2 = this.barLength + 1;
                 y2 = BAR_WIDTH + 1;
             } else {
                 x1 = 1;
                 y1 = 1;
-                x2 = this.progressBar.getProgress(this) + 1;
+                x2 = progressBar.getProgress(this) + 1;
                 y2 = BAR_WIDTH + 1;
             }
         }
