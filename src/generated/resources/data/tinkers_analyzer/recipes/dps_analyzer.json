@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "forge:gems/amethyst"
+    },
+    "D": {
+      "tag": "forge:dyes/blue"
+    },
+    "G": {
+      "item": "minecraft:clock"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "pattern": [
+    "AIA",
+    "DGD",
+    "AIA"
+  ],
+  "result": {
+    "item": "tinkers_analyzer:dps_analyzer"
+  },
+  "show_notification": true
+}

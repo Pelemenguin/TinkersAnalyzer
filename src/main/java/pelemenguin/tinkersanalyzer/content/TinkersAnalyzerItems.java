@@ -15,7 +15,7 @@ public final class TinkersAnalyzerItems {
         ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
-    public static final ItemObject<Item> TINKERS_ANALYZER = ITEMS.register("tinkers_analyzer", new Properties().stacksTo(1));
+    public static final ItemObject<Item> DPS_ANALYZER = ITEMS.register("dps_analyzer", new Properties().stacksTo(1));
 
     private TinkersAnalyzerItems() {}
 

@@ -125,6 +125,10 @@ repositories {
     maven {
         url "https://cursemaven.com"
     }
+    maven {
+        name 'DVS1 Maven FS'
+        url 'https://dvs1.progwml6.com/files/maven'
+    }
 }
 
 dependencies {
@@ -145,8 +149,13 @@ dependencies {
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
     // The group id is ignored when searching -- in this case, it is "blank"
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
-    implementation fg.deobf("curse.maven:tinkers-construct-74072:7449219")
-    implementation fg.deobf("curse.maven:mantle-74924:7414488")
+    // implementation fg.deobf("curse.maven:tinkers-construct-74072:7449219")
+    // implementation fg.deobf("curse.maven:mantle-74924:7414488")
+
+    implementation fg.deobf("slimeknights.mantle:Mantle:${minecraft_version}-1.11.97")
+    implementation fg.deobf("slimeknights.tconstruct:TConstruct:${minecraft_version}-3.11.2.166")
+
+    runtimeOnly fg.deobf("curse.maven:jei-238222:7391695")
 
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

@@ -1,0 +1,15 @@
+{
+  "type": "tconstruct:modifier",
+  "allow_crystal": true,
+  "check_trait_level": true,
+  "inputs": [
+    {
+      "item": "tinkers_analyzer:dps_analyzer"
+    }
+  ],
+  "level": 1,
+  "result": "tinkers_analyzer:dps_analyzer",
+  "tools": {
+    "tag": "tconstruct:modifiable"
+  }
+}
