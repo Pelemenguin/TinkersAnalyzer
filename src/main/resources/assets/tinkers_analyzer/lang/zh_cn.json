@@ -3,6 +3,7 @@
         "_comment_modifiers": " ========== ITEMS ========== ",
 
     "item.tinkers_analyzer.dps_analyzer": "DPS分析仪",
+    "item.tinkers_analyzer.dps_analyzer.tooltip": "拿在手中或作为强化添加到工具上以查看DPS信息",
 
         "_comment_modifiers": " ========== 强化 ========== ",
 

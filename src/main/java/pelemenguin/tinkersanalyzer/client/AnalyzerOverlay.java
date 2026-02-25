@@ -27,9 +27,11 @@ import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
 import pelemenguin.tinkersanalyzer.client.graph.IAnalyzerGraphCreator;
+import pelemenguin.tinkersanalyzer.content.item.IAnalyzerItem;
 import pelemenguin.tinkersanalyzer.library.Analyzer;
 import pelemenguin.tinkersanalyzer.library.hook.DisplayAnalyzerGraphModifierHook;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
+import slimeknights.tconstruct.library.modifiers.ModifierHooks;
 import slimeknights.tconstruct.library.tools.item.IModifiable;
 import slimeknights.tconstruct.library.tools.nbt.ToolStack;
 
@@ -71,6 +73,8 @@ public class AnalyzerOverlay implements IGuiOverlay {
                             hook.addGraph(toolStack, entry, slot, this.analyzer);
                         }
                     }
+                } else if (item instanceof IAnalyzerItem analyzerItem) {
+                    analyzerItem.addGraph(itemStack, slot, this.analyzer);
                 }
             }
 

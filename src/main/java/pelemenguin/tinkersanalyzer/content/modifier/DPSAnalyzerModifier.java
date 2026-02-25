@@ -1,7 +1,6 @@
 package pelemenguin.tinkersanalyzer.content.modifier;
 
 import java.util.Deque;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import net.minecraft.client.Minecraft;
@@ -20,10 +19,9 @@ import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
 import pelemenguin.tinkersanalyzer.client.graph.DPSGraph;
 import pelemenguin.tinkersanalyzer.client.graph.element.DiagramGraphElement.DataPoint;
 import pelemenguin.tinkersanalyzer.client.graph.element.DiagramGraphElement.HistogramBar;
-import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerGraphs;
+import pelemenguin.tinkersanalyzer.content.item.DPSAnalyzerItem;
 import pelemenguin.tinkersanalyzer.content.network.TinkersAnalyzerNetwork;
 import pelemenguin.tinkersanalyzer.library.Analyzer;
-import pelemenguin.tinkersanalyzer.library.AnalyzerLayoutEntry;
 import pelemenguin.tinkersanalyzer.library.hook.DisplayAnalyzerGraphModifierHook;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
 import slimeknights.tconstruct.library.modifiers.impl.NoLevelsModifier;
@@ -33,8 +31,6 @@ import slimeknights.tconstruct.library.tools.nbt.IToolStackView;
 @EventBusSubscriber(modid = TinkersAnalyzer.MODID, bus = Bus.FORGE)
 public class DPSAnalyzerModifier extends NoLevelsModifier implements DisplayAnalyzerGraphModifierHook {
 
-    public static final UUID GRAPH_UUID = UUID.fromString("291b4f42-6559-4bda-be8f-508329b7cffc");
-
     @Override
     protected void registerHooks(Builder hookBuilder) {
         hookBuilder.addHook(this, DisplayAnalyzerGraphModifierHook.INSTANCE);
@@ -42,7 +38,7 @@ public class DPSAnalyzerModifier extends NoLevelsModifier implements DisplayAnal
 
     @Override
     public void addGraph(IToolStackView tool, ModifierEntry modifier, EquipmentSlot slot, Analyzer analyzer) {
-        analyzer.createOrGetGraphData(GRAPH_UUID, TinkersAnalyzerGraphs.DPS, new AnalyzerLayoutEntry(30.0f, -10.0f, 192.0f));
+        DPSAnalyzerItem.addGraph(analyzer);
     }
 
     @SubscribeEvent
