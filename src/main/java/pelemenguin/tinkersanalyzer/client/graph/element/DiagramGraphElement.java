@@ -354,9 +354,9 @@ public class DiagramGraphElement extends AnalyzerGraphElement {
      * Automatically set the diagram's vertical axis' range by last diagram added.
      * @param maxLowerBound The lower bound of the vertical axis cannot go greater than this value.
      * @param minUpperBound The upper bound of the vertical axis cannot go less than this value.
-     * @param fixLowerBound Fix the vertical axis' lower bound to the value of {@link maxLowerBound}
+     * @param fixLowerBound Fix the vertical axis' lower bound to the value of {@code maxLowerBound}
      *                      (For example, when displaying something that is always positive, you can fix the lower bound to 0)
-     * @param fixUpperBound Fix the vertical axis' upper bound to the value of {@link minUpperBound}
+     * @param fixUpperBound Fix the vertical axis' upper bound to the value of {@code minUpperBound}
      * @return
      */
     public DiagramGraphElement autoYRange(float maxLowerBound, float minUpperBound, boolean fixLowerBound, boolean fixUpperBound) {

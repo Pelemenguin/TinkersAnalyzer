@@ -12,11 +12,10 @@ import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
 /**
  * A util class to transform texts into formatted {@link Component}.
  * 
- * <h1>Supported Formats</h1>
+ * <h2>Supported Formats</h2>
  * 
- * <p>
  * <ul>
- *     <li> {@code *}, {@code **} and {@code ***} are for <i>italic</i>, <b>bold</b>, and <b><i>bold italic</b></i> style respectively.
+ *     <li> {@code *}, {@code **} and {@code ***} are for <i>italic</i>, <b>bold</b>, and <b><i>bold italic</i></b> style respectively.
  *     <ul>
  *         <li> {@code *} and {@code **} can be combined as {@code ***}. For example:
  *  
@@ -38,13 +37,14 @@ import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
  *              will be transformed into:
  * 
  * <pre>
- * ... a <i> b <b> c </i> d </b> e...
+ * ... a <i> b <b> c </b></i><b> d </b> e...
  * </pre>
  * 
+ *     </li>
  *     </ul>
  * </ul>
  * 
- * <h1>Customization</h1>
+ * <h3>Customization</h3>
  * 
  * <p>
  * The styles may be customized via methods {@link #withItalicStyle(Style)}, {@link #withBoldStyle(Style)},
@@ -63,7 +63,7 @@ public class TextTransformer {
     /**
      * The {@link TextTransformer} using default styles.
      * 
-     * <h1>Styles</h1>
+     * <h4>Styles</h4>
      * <ul>
      *     <li> {@code *italic*} - <i>italic</i>
      *     <li> {@code **bold**} - <b>bold</b>
@@ -74,7 +74,7 @@ public class TextTransformer {
     /**
      * The {@link TextTransformer} used in tooltips.
      * 
-     * <h1>Styles</h1>
+     * <h4>Styles</h4>
      * For better visibility, the background color has been set to {@code #000000}.
      * <div style="background-color:#000000;border-radius:15px;margin:10px;color:#FFFFFF;">
      * <ul>
@@ -144,8 +144,8 @@ public class TextTransformer {
 
     /**
      * Transforms a {@link Component}.
-     * @param component The {@code Component} to transform
-     * @return          The transformed {@code Component}
+     * @param text The {@code Component} to transform
+     * @return     The transformed {@code Component}
      */
     public Component transform(String text) {
         try {

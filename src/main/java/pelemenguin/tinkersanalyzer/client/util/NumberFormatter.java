@@ -4,8 +4,6 @@ import net.minecraft.util.Mth;
 
 /**
  * A util class for defining how numbers are displayed in Analyzer Graphs
- * @param number The {@code float} number to display
- * @return       A {@link String}ified number 
  */
 @FunctionalInterface
 public interface NumberFormatter {

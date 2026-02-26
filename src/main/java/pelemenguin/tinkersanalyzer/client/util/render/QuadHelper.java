@@ -129,7 +129,7 @@ public final class QuadHelper {
      * @param y2          Y-coordinate of the bottom-right vertex
      * @param borderWidth The width of the border
      * @param matrix      The current transformation matrix. Usually obtained via {@code poseStack.last().pose()}
-     * @param color       The color inside the quad in {@code 0xAARRGGBB} format
+     * @param colorInner  The color inside the quad in {@code 0xAARRGGBB} format
      * @param colorBorder The color of the border in {@code 0xAARRGGBB} format
      */
     public static void drawAxisAlignedBorderedQuad(float x1, float y1, float x2, float y2, float borderWidth, Matrix4f matrix, int colorInner, int colorBorder) {
@@ -156,10 +156,10 @@ public final class QuadHelper {
      * @param minY        The y-coordinate of the top boundary of the rectangular area
      * @param maxX        The x-coordinate of the right boundary of the rectangular area
      * @param maxX        The y-coordinate of the bottom boundary of the rectangular area
-     * @param borderWidth The width of the border
+     * @param edgeWidth   The width of the border
      * @param matrix      The current transformation matrix. Usually obtained via {@code poseStack.last().pose()}
-     * @param color       The color inside the quad in {@code 0xAARRGGBB} format
-     * @param colorBorder The color of the border in {@code 0xAARRGGBB} format
+     * @param colorInner  The color inside the quad in {@code 0xAARRGGBB} format
+     * @param colorEdge   The color of the border in {@code 0xAARRGGBB} format
      */
     public static void drawAxisAlignedBorderedQuadWithin(float x1, float y1, float x2, float y2, float minX, float minY, float maxX, float maxY, float edgeWidth, Matrix4f matrix, int colorInner, int colorEdge) {
         assertStatus(true);

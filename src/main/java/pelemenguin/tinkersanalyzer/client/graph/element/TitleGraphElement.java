@@ -12,7 +12,7 @@ import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
  * An {@link AnalyzerGraphElement} displaying a title.
  * A horizontal line is drawn below the title.
  * 
- * <h1>Size</h1>
+ * <h2>Size</h2>
  * The element's width is equal to the {@link #minWidth} given.
  * By default, {@code minWidth} is equal to the length of the {@link text} to display.
  * However, the horizontal line's length directly depends on the parent {@link AnalyzerGraph}'s width,
