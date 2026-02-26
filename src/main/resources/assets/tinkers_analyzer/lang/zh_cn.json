@@ -3,12 +3,12 @@
         "_comment_modifiers": " ========== ITEMS ========== ",
 
     "item.tinkers_analyzer.dps_analyzer": "DPS分析仪",
-    "item.tinkers_analyzer.dps_analyzer.tooltip": "拿在手中或作为强化添加到工具上以查看DPS信息",
+    "item.tinkers_analyzer.dps_analyzer.tooltip": "*拿在手中*或*作为强化*添加到工具上以查看*DPS信息*",
 
     "item.tinkers_analyzer.entity_radar": "实体雷达",
-    "item.tinkers_analyzer.entity_radar.tooltip.1": "拿在手中或作为强化添加到工具上以查看周围实体",
-    "item.tinkers_analyzer.entity_radar.tooltip.2": "绿色像素表示被动实体，黄色表示中立，而红色表示敌对实体",
-    "item.tinkers_analyzer.entity_radar.tooltip.3": "像素偏白时，实体在玩家上方；像素偏黑时，实体在玩家下方",
+    "item.tinkers_analyzer.entity_radar.tooltip.1": "*拿在手中*或*作为强化*添加到工具上以查看*周围实体*",
+    "item.tinkers_analyzer.entity_radar.tooltip.2": "*绿色*像素表示*被动实体*，*黄色*表示*中立*，而*红色*表示*敌对实体*",
+    "item.tinkers_analyzer.entity_radar.tooltip.3": "像素*偏白*时，实体在玩家*上方*；像素*偏黑*时，实体在玩家*下方*",
 
         "_comment_modifiers": " ========== 强化 ========== ",
 
@@ -43,6 +43,10 @@
 
         "_comment_keybing": " ========== 键位 ========== ",
     "key.categories.tinkers_analyzer.tinkers_analyzer": "工匠分析仪",
-    "key.tinkers_analyzer.toggle_layout_editing_mode": "切换分析仪布局编辑模式"
+    "key.tinkers_analyzer.toggle_layout_editing_mode": "切换分析仪布局编辑模式",
+
+        "_comment_special": " ========== 特殊 ========== ",
+
+    "special.tinkers_analyzer.text_transformation_failed": "转换一下文本时失败：\n    %1$s\n堆栈信息：\n"
 
 }

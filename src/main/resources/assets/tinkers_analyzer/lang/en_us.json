@@ -3,12 +3,12 @@
         "_comment_modifiers": " ========== ITEMS ========== ",
 
     "item.tinkers_analyzer.dps_analyzer": "DPS Analyzer",
-    "item.tinkers_analyzer.dps_analyzer.tooltip": "Hold in hand or apply to a tool as a modifier to view DPS information",
+    "item.tinkers_analyzer.dps_analyzer.tooltip": "*Hold in hand* or *apply to a tool* as a modifier to view *DPS information*",
 
     "item.tinkers_analyzer.entity_radar": "Entity Radar",
-    "item.tinkers_analyzer.entity_radar.tooltip.1": "Hold in hand or apply to a tool as a modifier to view surrounding living entities",
-    "item.tinkers_analyzer.entity_radar.tooltip.2": "Green pixels are for passive entities, yellow are for neutral entities and red are for enemies",
-    "item.tinkers_analyzer.entity_radar.tooltip.3": "Whiter pixels for higher positions and blacker pixels for deeper positions of entities",
+    "item.tinkers_analyzer.entity_radar.tooltip.1": "*Hold in hand* or *apply to a tool* as a modifier to view *surrounding living entities*",
+    "item.tinkers_analyzer.entity_radar.tooltip.2": "*Green pixels* are for *passive entities*, *yellow* are for *neutral entities* and *red* are for *enemies*",
+    "item.tinkers_analyzer.entity_radar.tooltip.3": "*Whiter pixels* for *higher positions* and *blacker pixels* for *deeper positions* of entities",
 
         "_comment_modifiers": " ========== MODIFIERS ========== ",
 
@@ -47,6 +47,10 @@
         "_comment_keybing": " ========== KEYBINDS ========== ",
 
     "key.categories.tinkers_analyzer.tinkers_analyzer": "Tinker's Analyzer",
-    "key.tinkers_analyzer.toggle_layout_editing_mode": "Toggle Analyzer Layout Editing Mode"
+    "key.tinkers_analyzer.toggle_layout_editing_mode": "Toggle Analyzer Layout Editing Mode",
+
+        "_comment_special": " ========== SPECIALS ========== ",
+
+    "special.tinkers_analyzer.text_transformation_failed": "Failed to transform the following text:\n    %1$s\nStacktrace:\n"
 
 }

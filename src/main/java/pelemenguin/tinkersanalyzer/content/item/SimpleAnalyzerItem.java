@@ -12,20 +12,25 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import pelemenguin.tinkersanalyzer.library.Analyzer;
 import pelemenguin.tinkersanalyzer.library.AnalyzerLayoutEntry;
+import pelemenguin.tinkersanalyzer.library.text.TextTransformer;
+import pelemenguin.tinkersanalyzer.library.text.TransformableComponent;
 
 public class SimpleAnalyzerItem extends Item implements IAnalyzerItem {
 
     public UUID graphUuid;
     public ResourceLocation graphId;
     private AnalyzerLayoutEntry defaultLayout;
-    private Component[] components;
+    private TransformableComponent[] components;
 
     public SimpleAnalyzerItem(Properties properties, UUID graphUuid, ResourceLocation graphId, AnalyzerLayoutEntry defaultLayout, Component ...components) {
         super(properties);
         this.graphUuid = graphUuid;
         this.graphId = graphId;
         this.defaultLayout = defaultLayout;
-        this.components = components;
+        this.components = new TransformableComponent[components.length];
+        for (int i = 0; i < components.length; i++) {
+            this.components[i] = new TransformableComponent(components[i], TextTransformer.TOOLTIPS);
+        }
     }
 
     public void addGraph(Analyzer analyzer) {
@@ -39,8 +44,8 @@ public class SimpleAnalyzerItem extends Item implements IAnalyzerItem {
 
     @Override
     public void appendHoverText(ItemStack p_41421_, Level p_41422_, List<Component> p_41423_, TooltipFlag p_41424_) {
-        for (Component component : this.components) {
-            p_41423_.add(component);
+        for (TransformableComponent component : this.components) {
+            p_41423_.add(component.get());
         }
     }
 
