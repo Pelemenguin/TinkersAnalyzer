@@ -5,6 +5,11 @@
     "item.tinkers_analyzer.dps_analyzer": "DPS Analyzer",
     "item.tinkers_analyzer.dps_analyzer.tooltip": "Hold in hand or apply to a tool as a modifier to view DPS information",
 
+    "item.tinkers_analyzer.entity_radar": "Entity Radar",
+    "item.tinkers_analyzer.entity_radar.tooltip.1": "Hold in hand or apply to a tool as a modifier to view surrounding living entities",
+    "item.tinkers_analyzer.entity_radar.tooltip.2": "Green pixels are for passive entities, yellow are for neutral entities and red are for enemies",
+    "item.tinkers_analyzer.entity_radar.tooltip.3": "Whiter pixels for higher positions and blacker pixels for deeper positions of entities",
+
         "_comment_modifiers": " ========== MODIFIERS ========== ",
 
     "modifier.tinkers_analyzer.dps_analyzer": "DPS Analyzer",
@@ -15,6 +20,10 @@
     "modifier.tinkers_analyzer.dps_analyzer.last_damage": "Last Dmg.",
     "modifier.tinkers_analyzer.dps_analyzer.dps": "DPS",
     "modifier.tinkers_analyzer.dps_analyzer.average_dps": "Avg. DPS",
+
+    "modifier.tinkers_analyzer.entity_radar": "Entity Radar",
+    "modifier.tinkers_analyzer.entity_radar.flavor": "Better than a spyglass!",
+    "modifier.tinkers_analyzer.entity_radar.flavor": "Display living entities nearby",
 
     "modifier.tinkers_analyzer.copper_gauge": "Copper Gauge",
     "modifier.tinkers_analyzer.copper_gauge.flavor": "Watching carefully...",

@@ -19,7 +19,7 @@ import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
 import pelemenguin.tinkersanalyzer.client.graph.DPSGraph;
 import pelemenguin.tinkersanalyzer.client.graph.element.DiagramGraphElement.DataPoint;
 import pelemenguin.tinkersanalyzer.client.graph.element.DiagramGraphElement.HistogramBar;
-import pelemenguin.tinkersanalyzer.content.item.DPSAnalyzerItem;
+import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerItems;
 import pelemenguin.tinkersanalyzer.content.network.TinkersAnalyzerNetwork;
 import pelemenguin.tinkersanalyzer.library.Analyzer;
 import pelemenguin.tinkersanalyzer.library.hook.DisplayAnalyzerGraphModifierHook;
@@ -38,7 +38,7 @@ public class DPSAnalyzerModifier extends NoLevelsModifier implements DisplayAnal
 
     @Override
     public void addGraph(IToolStackView tool, ModifierEntry modifier, EquipmentSlot slot, Analyzer analyzer) {
-        DPSAnalyzerItem.addGraph(analyzer);
+        TinkersAnalyzerItems.DPS_ANALYZER.get().addGraph(analyzer);
     }
 
     @SubscribeEvent

@@ -5,6 +5,11 @@
     "item.tinkers_analyzer.dps_analyzer": "DPS分析仪",
     "item.tinkers_analyzer.dps_analyzer.tooltip": "拿在手中或作为强化添加到工具上以查看DPS信息",
 
+    "item.tinkers_analyzer.entity_radar": "实体雷达",
+    "item.tinkers_analyzer.entity_radar.tooltip.1": "拿在手中或作为强化添加到工具上以查看周围实体",
+    "item.tinkers_analyzer.entity_radar.tooltip.2": "绿色像素表示被动实体，黄色表示中立，而红色表示敌对实体",
+    "item.tinkers_analyzer.entity_radar.tooltip.3": "像素偏白时，实体在玩家上方；像素偏黑时，实体在玩家下方",
+
         "_comment_modifiers": " ========== 强化 ========== ",
 
     "modifier.tinkers_analyzer.dps_analyzer": "DPS分析仪",

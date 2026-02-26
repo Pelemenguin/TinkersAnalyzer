@@ -8,6 +8,7 @@
 
     "modifier.tinkers_analyzer": {
         "dps_analyzer": "#236FCF",
+        "entity_radar": "#00FF00",
         "copper_gauge": "#FFA475",
         "obsidian_gauge": "#3C3666"
     }

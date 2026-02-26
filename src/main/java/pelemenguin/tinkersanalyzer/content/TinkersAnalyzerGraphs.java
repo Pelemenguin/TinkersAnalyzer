@@ -33,6 +33,8 @@ public final class TinkersAnalyzerGraphs {
         original.put("slots", tag);
     }
 
+    public static final ResourceLocation ENTITY_RADAR = TinkersAnalyzer.makeResource("entity_radar");
+
     private TinkersAnalyzerGraphs() {}
 
 }

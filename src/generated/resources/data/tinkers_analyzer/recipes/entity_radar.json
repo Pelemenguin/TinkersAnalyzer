@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:compass"
+    },
+    "D": {
+      "tag": "forge:dyes/lime"
+    },
+    "E": {
+      "tag": "forge:gems/emerald"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "pattern": [
+    "EIE",
+    "DCD",
+    "EIE"
+  ],
+  "result": {
+    "item": "tinkers_analyzer:entity_radar"
+  },
+  "show_notification": true
+}

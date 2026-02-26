@@ -172,6 +172,20 @@ public final class QuadHelper {
     }
 
     /**
+     * Draw a square.
+     * 
+     * @param x      The x-coordinate of the top-left vertex
+     * @param y      The y-coordinate of the top-left vertex
+     * @param a      The side length of the square
+     * @param matrix The current transformation matrix. Usually obtained via {@code poseStack.last().pose()}
+     * @param color  The color inside the quad in {@code 0xAARRGGBB} format
+     */
+    public static void drawSquare(float x, float y, float a, Matrix4f matrix, int color) {
+        assertStatus(true);
+        drawAxisAlignedQuad(x, y, x + a, y + a, matrix, color);
+    }
+
+    /**
      * Finishes quad drawing.
      */
     public static void finishDrawQuads() {

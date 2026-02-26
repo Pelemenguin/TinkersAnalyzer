@@ -3,7 +3,6 @@ package pelemenguin.tinkersanalyzer.data;
 import java.util.function.Consumer;
 
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -28,8 +27,12 @@ public final class TinkersAnalyzerRecipes extends RecipeProvider {
         super(p_248933_);
     }
 
-    private static ResourceLocation recipeId(String path) {
+    private static ResourceLocation modifierRecipeId(String path) {
         return TinkersAnalyzer.makeResource("modifiers/" + path);
+    }
+
+    private static ResourceLocation commonRecipeId(String path) {
+        return TinkersAnalyzer.makeResource("common/" + path);
     }
 
     private static TagKey<Item> itemTagKey(String path) {
@@ -47,8 +50,11 @@ public final class TinkersAnalyzerRecipes extends RecipeProvider {
 
         final Ingredient IRON_INGOTS = tagIngredient("forge:ingots/iron");
         final Ingredient AMETHYSTS = tagIngredient("forge:gems/amethyst");
+        final Ingredient EMERALDS = tagIngredient("forge:gems/emerald");
         final Ingredient BLUE_DYES = tagIngredient("forge:dyes/blue");
+        final Ingredient LIME_DYES = tagIngredient("forge:dyes/lime");
         final Ingredient CLOCK = Ingredient.of(Items.CLOCK);
+        final Ingredient COMPASS = Ingredient.of(Items.COMPASS);
 
         // ================================ //
         // | Item Recipes                 | //
@@ -62,10 +68,19 @@ public final class TinkersAnalyzerRecipes extends RecipeProvider {
             .define('I', IRON_INGOTS)
             .define('D', BLUE_DYES)
             .define('G', CLOCK)
-            .unlockedBy("has_amethyst", InventoryChangeTrigger.TriggerInstance.hasItems(
-                    ItemPredicate.Builder.item().of(itemTagKey("forge:gems/amethyst")).build()
-                ))
-            .save(consumer);
+            .unlockedBy("has_clock", InventoryChangeTrigger.TriggerInstance.hasItems(Items.CLOCK))
+            .save(consumer, commonRecipeId("dps_analyzer"));
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, TinkersAnalyzerItems.ENTITY_RADAR.get())
+            .pattern("EIE")
+            .pattern("DCD")
+            .pattern("EIE")
+            .define('E', EMERALDS)
+            .define('I', IRON_INGOTS)
+            .define('D', LIME_DYES)
+            .define('C', COMPASS)
+            .unlockedBy("has_compass", InventoryChangeTrigger.TriggerInstance.hasItems(Items.COMPASS))
+            .save(consumer, commonRecipeId("entity_radar"));
 
         // ================================ //
         // | Modifier Recipes             | //
@@ -77,7 +92,14 @@ public final class TinkersAnalyzerRecipes extends RecipeProvider {
             .checkTraitLevel()
             .exactLevel(1)
             .setTools(TinkerTags.Items.MODIFIABLE)
-            .save(consumer, recipeId("dps_analyzer"));
+            .save(consumer, modifierRecipeId("dps_analyzer"));
+
+        ModifierRecipeBuilder.modifier(TinkersAnalyzerModifiers.ENTITY_RADAR)
+        .addInput(TinkersAnalyzerItems.ENTITY_RADAR.get())
+        .checkTraitLevel()
+        .exactLevel(1)
+        .setTools(TinkerTags.Items.MODIFIABLE)
+        .save(consumer, modifierRecipeId("entity_radar"));
 
         // Copper Gauge
         ModifierRecipeBuilder.modifier(TinkersAnalyzerModifiers.COPPER_GAUGE)
@@ -85,7 +107,7 @@ public final class TinkersAnalyzerRecipes extends RecipeProvider {
             .checkTraitLevel()
             .exactLevel(1)
             .setTools(TinkerTags.Items.MODIFIABLE)
-            .save(consumer, recipeId("copper_gauge"));
+            .save(consumer, modifierRecipeId("copper_gauge"));
 
         // Obsidian Gauge
         ModifierRecipeBuilder.modifier(TinkersAnalyzerModifiers.OBSIDIAN_GAUGE)
@@ -93,7 +115,7 @@ public final class TinkersAnalyzerRecipes extends RecipeProvider {
             .checkTraitLevel()
             .exactLevel(1)
             .setTools(TinkerTags.Items.MODIFIABLE)
-            .save(consumer, recipeId("obsidian_gauge"));
+            .save(consumer, modifierRecipeId("obsidian_gauge"));
 
     }
 

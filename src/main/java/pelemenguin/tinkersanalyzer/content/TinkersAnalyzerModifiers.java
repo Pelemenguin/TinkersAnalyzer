@@ -3,6 +3,7 @@ package pelemenguin.tinkersanalyzer.content;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
 import pelemenguin.tinkersanalyzer.content.modifier.DPSAnalyzerModifier;
+import pelemenguin.tinkersanalyzer.content.modifier.EntityRadarModifier;
 import pelemenguin.tinkersanalyzer.content.modifier.FluidGaugeModifier;
 import pelemenguin.tinkersanalyzer.content.modifier.FluidGaugeModifier.GaugeType;
 import pelemenguin.tinkersanalyzer.content.modifier.TinkersAnalyzerModifier;
@@ -17,6 +18,7 @@ public final class TinkersAnalyzerModifiers {
     public static final StaticModifier<DPSAnalyzerModifier> DPS_ANALYZER = MODIFIERS.register("dps_analyzer", DPSAnalyzerModifier::new);
     public static final StaticModifier<FluidGaugeModifier> COPPER_GAUGE = MODIFIERS.register("copper_gauge", () -> new FluidGaugeModifier(GaugeType.COPPER));
     public static final StaticModifier<FluidGaugeModifier> OBSIDIAN_GAUGE = MODIFIERS.register("obsidian_gauge", () -> new FluidGaugeModifier(GaugeType.OBSIDIAN));
+    public static final StaticModifier<EntityRadarModifier> ENTITY_RADAR = MODIFIERS.register("entity_radar", EntityRadarModifier::new);
 
     public static void init() {
         MODIFIERS.register(FMLJavaModLoadingContext.get().getModEventBus());

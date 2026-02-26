@@ -15,6 +15,7 @@ public class TinkersAnalyzerItemModels extends ItemModelProvider {
     @Override
     protected void registerModels() {
         this.basicItem(TinkersAnalyzerItems.DPS_ANALYZER.get());
+        this.basicItem(TinkersAnalyzerItems.ENTITY_RADAR.get());
     }
 
 }

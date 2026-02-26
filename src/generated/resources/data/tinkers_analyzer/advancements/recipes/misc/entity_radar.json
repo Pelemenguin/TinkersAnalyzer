@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_clock": {
+    "has_compass": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:clock"
+              "minecraft:compass"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "tinkers_analyzer:dps_analyzer"
+        "recipe": "tinkers_analyzer:entity_radar"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_clock",
+      "has_compass",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "tinkers_analyzer:dps_analyzer"
+      "tinkers_analyzer:entity_radar"
     ]
   },
   "sends_telemetry_event": false

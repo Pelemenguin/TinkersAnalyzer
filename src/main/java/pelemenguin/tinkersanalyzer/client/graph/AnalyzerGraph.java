@@ -28,7 +28,7 @@ public class AnalyzerGraph {
         this.color = tag.getInt("color");
     }
 
-    protected static final int BACKGROUND_ALPGA = 31;
+    protected static final int BACKGROUND_ALPGA = 63;
     protected static final int BACKGROUND_ALPHA_SELECTED = 127;
 
     private float selectProgress = 0.0f;
