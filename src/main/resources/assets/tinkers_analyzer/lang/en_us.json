@@ -26,6 +26,7 @@
     "modifier.tinkers_analyzer.entity_radar": "Entity Radar",
     "modifier.tinkers_analyzer.entity_radar.flavor": "Better than a spyglass!",
     "modifier.tinkers_analyzer.entity_radar.description": "Display living entities nearby",
+    "modifier.tinkers_analyzer.entity_radar.tooltip": "Entity Radar: ",
 
     "modifier.tinkers_analyzer.copper_gauge": "Copper Gauge",
     "modifier.tinkers_analyzer.copper_gauge.flavor": "Watching carefully...",

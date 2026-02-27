@@ -1,12 +1,17 @@
 package pelemenguin.tinkersanalyzer.content.modifier;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.registries.ForgeRegistries;
+import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
 import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerGraphs;
 import pelemenguin.tinkersanalyzer.content.item.EntityRadarItem;
 import pelemenguin.tinkersanalyzer.library.Analyzer;
@@ -44,6 +49,19 @@ public class EntityRadarModifier extends NoLevelsModifier implements DisplayAnal
             LivingEntity target, InteractionHand hand, InteractionSource source) {
         tool.getPersistentData().putString(modifier.getId(), EntityType.getKey(target.getType()).toString());
         return InteractionResult.CONSUME;
+    }
+
+    @Override
+    public Component getDisplayName(IToolStackView tool, ModifierEntry entry, RegistryAccess access) {
+        Component original = super.getDisplayName(tool, entry, access);
+        if (access == null) return original;
+        String name = tool.getPersistentData().getString(entry.getId());
+        if (name.isEmpty()) return original;
+        ResourceLocation entityType = ResourceLocation.tryParse(name);
+        if (entityType == null) return original;
+        EntityType<?> type = access.registryOrThrow(ForgeRegistries.ENTITY_TYPES.getRegistryKey()).get(entityType);
+        if (type == null) return original;
+        return TinkersAnalyzer.makeModifierTranslation(entry.getId().getPath() + ".tooltip").append(type.getDescription()).setStyle(original.getStyle());
     }
 
 }
