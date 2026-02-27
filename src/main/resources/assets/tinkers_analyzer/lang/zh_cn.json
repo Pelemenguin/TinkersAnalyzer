@@ -3,12 +3,12 @@
         "_comment_modifiers": " ========== ITEMS ========== ",
 
     "item.tinkers_analyzer.dps_analyzer": "DPS分析仪",
-    "item.tinkers_analyzer.dps_analyzer.tooltip": "*拿在手中*或*作为强化*添加到工具上以查看*DPS信息*",
+    "item.tinkers_analyzer.dps_analyzer.tooltip": "*拿在手中*或*作为强化*添加到工具上以查看**DPS信息**",
 
     "item.tinkers_analyzer.entity_radar": "实体雷达",
-    "item.tinkers_analyzer.entity_radar.tooltip.1": "*拿在手中*或*作为强化*添加到工具上以查看*周围实体*",
-    "item.tinkers_analyzer.entity_radar.tooltip.2": "*绿色*像素表示*被动实体*，*黄色*表示*中立*，而*红色*表示*敌对实体*",
-    "item.tinkers_analyzer.entity_radar.tooltip.3": "像素*偏白*时，实体在玩家*上方*；像素*偏黑*时，实体在玩家*下方*",
+    "item.tinkers_analyzer.entity_radar.tooltip.1": "*拿在手中*或*作为强化*添加到工具上以查看**周围实体**",
+    "item.tinkers_analyzer.entity_radar.tooltip.2": "*绿色*像素表示**被动实体**，*黄色*表示**中立**，而*红色*表示**敌对实体**",
+    "item.tinkers_analyzer.entity_radar.tooltip.3": "像素*偏白*时，实体在玩家**上方**；像素*偏黑*时，实体在玩家**下方**",
 
         "_comment_modifiers": " ========== 强化 ========== ",
 
@@ -20,6 +20,10 @@
     "modifier.tinkers_analyzer.dps_analyzer.last_damage": "上次伤害",
     "modifier.tinkers_analyzer.dps_analyzer.dps": "DPS",
     "modifier.tinkers_analyzer.dps_analyzer.average_dps": "平均DPS",
+
+    "modifier.tinkers_analyzer.entity_radar": "实体雷达",
+    "modifier.tinkers_analyzer.entity_radar.flavor": "好过一个望远镜！",
+    "modifier.tinkers_analyzer.entity_radar.description": "显示周围的实体",
 
     "modifier.tinkers_analyzer.copper_gauge": "铜量计",
     "modifier.tinkers_analyzer.copper_gauge.flavor": "仔细观察……",

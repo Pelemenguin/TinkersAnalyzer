@@ -80,7 +80,7 @@ public class TextTransformer {
      * <ul>
      *     <li> {@code *italic*} - <a style="color:#00A0DD;">italic</a>
      *     <li> {@code **bold**} - <a style="color:#25E2CD;"><b>bold</b></a>
-     *     <li> {@code ***bold italic**} - <a style="color:#D3FCE6;"><b><i>bold italic</i></b></a>
+     *     <li> {@code ***bold italic***} - <a style="color:#D3FCE6;"><b><i>bold italic</i></b></a>
      * </ul>
      * </div>
      */
