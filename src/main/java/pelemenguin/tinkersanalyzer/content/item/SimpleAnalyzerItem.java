@@ -29,7 +29,7 @@ public class SimpleAnalyzerItem extends Item implements IAnalyzerItem {
         this.defaultLayout = defaultLayout;
         this.components = new TransformableComponent[components.length];
         for (int i = 0; i < components.length; i++) {
-            this.components[i] = new TransformableComponent(components[i], TextTransformer.TOOLTIPS);
+            this.components[i] = new TransformableComponent(components[i], TextTransformer.tooltipsInstance);
         }
     }
 

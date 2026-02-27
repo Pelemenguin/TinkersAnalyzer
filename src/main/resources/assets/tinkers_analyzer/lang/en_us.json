@@ -9,6 +9,8 @@
     "item.tinkers_analyzer.entity_radar.tooltip.1": "*Hold in hand* or *apply to a tool* as a modifier to view **surrounding living entities**",
     "item.tinkers_analyzer.entity_radar.tooltip.2": "*Green pixels* are for **passive entities**, *yellow* are for **neutral entities** and *red* are for **enemies**",
     "item.tinkers_analyzer.entity_radar.tooltip.3": "*Whiter pixels* for **higher positions** and *blacker pixels* for **deeper positions** of entities",
+    "item.tinkers_analyzer.entity_radar.tooltip.4": "*Interact* with an entity to track entities **of the same type**",
+    "item.tinkers_analyzer.entity_radar.tooltip.tracking": "Currently tracking: ",
 
         "_comment_modifiers": " ========== MODIFIERS ========== ",
 

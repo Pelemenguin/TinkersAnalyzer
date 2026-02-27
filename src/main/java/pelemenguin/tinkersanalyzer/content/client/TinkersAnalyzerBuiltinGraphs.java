@@ -13,7 +13,7 @@ public final class TinkersAnalyzerBuiltinGraphs {
         AnalyzerOverlay.registerGraph(TinkersAnalyzerGraphs.PLAIN_TEXT, PlainTextGraph::new);
         AnalyzerOverlay.registerGraph(TinkersAnalyzerGraphs.DPS, (tag) -> DPSGraph.getInstance());
         AnalyzerOverlay.registerGraph(TinkersAnalyzerGraphs.FLUID_GAUGE, FluidGaugeGraph::new);
-        AnalyzerOverlay.registerGraph(TinkersAnalyzerGraphs.ENTITY_RADAR, (tag) -> EntityRadarGraph.getInstance());
+        AnalyzerOverlay.registerGraph(TinkersAnalyzerGraphs.ENTITY_RADAR, EntityRadarGraph::new);
     }
 
 }

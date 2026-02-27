@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.monster.Enemy;
@@ -24,10 +25,12 @@ public class RadarGraphElement extends AnalyzerGraphElement {
     public static final float RATIO = 4;
     public final int radarRadius;
     private final int radarRadiusSquared;
+    protected EntityType<?> trackingEntity;
 
     public static final int PASSIVE_COLOR = 0xFF00FF00;
     public static final int ENEMY_COLOR = 0xFFFF0000;
-    public static final int NEUTRAL_COLOR = 0xFF00FFFF;
+    public static final int NEUTRAL_COLOR = 0xFFFFFF00;
+    public static final int TRACKING_COLOR = 0xFF00FFFF;
 
     public RadarGraphElement(int radius) {
         this.radius = radius;
@@ -47,9 +50,15 @@ public class RadarGraphElement extends AnalyzerGraphElement {
         GeometryHelper.drawCircle(this.radius, this.radius, this.radius, matrix, 0xFF000000 | this.color);
     }
 
+    public void trackEntity(EntityType<?> type) {
+        this.trackingEntity = type;
+    }
+
     protected int getColorForEntity(Entity entity, Vec3 relativePos) {
         int result;
-        if (entity instanceof Enemy) {
+        if (entity.getType().equals(this.trackingEntity)) {
+            result = TRACKING_COLOR;
+        } else if (entity instanceof Enemy) {
             result = ENEMY_COLOR;
         } else if (entity instanceof NeutralMob) {
             result = NEUTRAL_COLOR;

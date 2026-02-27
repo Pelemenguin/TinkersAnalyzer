@@ -1,28 +1,34 @@
 package pelemenguin.tinkersanalyzer.client.graph;
 
 import net.minecraft.nbt.CompoundTag;
-import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.registries.ForgeRegistries;
 import pelemenguin.tinkersanalyzer.client.graph.element.RadarGraphElement;
-import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerGraphs;
-import slimeknights.mantle.client.ResourceColorManager;
+import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerModifiers;
 
 public class EntityRadarGraph extends AnalyzerGraph {
 
-    private static EntityRadarGraph INSTANCE;
+    protected RadarGraphElement element;
 
-    private EntityRadarGraph(CompoundTag tag) {
+    public EntityRadarGraph(CompoundTag tag) {
         super(tag);
 
-        this.addElement(new RadarGraphElement(15).color(this.color));
+        this.elements.clear();
+        this.addElement(this.element);
     }
 
-    public static EntityRadarGraph getInstance() {
-        if (INSTANCE == null) {
-            CompoundTag arg = new CompoundTag();
-            TinkersAnalyzerGraphs.basicGraphData(arg, 0x00FFFFFF & ResourceColorManager.getColor(TinkersAnalyzer.makeModifierTranslationKey("entity_radar")));
-            INSTANCE = new EntityRadarGraph(arg);
+    @Override
+    public void load(CompoundTag tag) {
+        this.color = TinkersAnalyzerModifiers.ENTITY_RADAR.get().getColor();
+        if (this.element == null) {
+            this.element = new RadarGraphElement(15).color(this.color);
         }
-        return INSTANCE;
+        ResourceLocation requiredType = ResourceLocation.tryParse(tag.getString("entityType"));
+        if (requiredType == null) return;
+        EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(requiredType);
+        if (type == null) return;
+        this.element.trackEntity(type);
     }
 
 }

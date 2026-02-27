@@ -34,6 +34,9 @@ public final class TinkersAnalyzerGraphs {
     }
 
     public static final ResourceLocation ENTITY_RADAR = TinkersAnalyzer.makeResource("entity_radar");
+    public static void entityRadarGraphData(CompoundTag original, String entityName) {
+        original.putString("entityType", entityName);
+    }
 
     private TinkersAnalyzerGraphs() {}
 

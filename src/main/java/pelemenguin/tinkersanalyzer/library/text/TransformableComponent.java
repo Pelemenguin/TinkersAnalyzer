@@ -15,7 +15,7 @@ public class TransformableComponent {
     }
 
     public TransformableComponent(Component raw) {
-        this(raw, TextTransformer.DEFAULT);
+        this(raw, TextTransformer.defaultInstance);
     }
 
     public Component get() {

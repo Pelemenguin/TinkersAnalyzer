@@ -13,7 +13,7 @@ import pelemenguin.tinkersanalyzer.client.util.render.QuadHelper;
 
 public class AnalyzerGraph {
 
-    List<AnalyzerGraphElement> elements = new ArrayList<>();
+    protected List<AnalyzerGraphElement> elements = new ArrayList<>();
 
     protected int color;
 

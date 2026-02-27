@@ -55,10 +55,15 @@ import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
  */
 public class TextTransformer {
 
-    private static final Style DEFAULT_ITALIC_STYLE = Style.EMPTY.withItalic(true);
-    private static final Style DEFAULT_BOLD_STYLE = Style.EMPTY.withBold(true);
-    private static final Style DEFAULT_EMPTY_STYLE = Style.EMPTY;
-    private static final Style DEFAULT_ERROR_STYLE = Style.EMPTY.withColor(0xFF0000);
+    public static final Style DEFAULT_ITALIC_STYLE = Style.EMPTY.withItalic(true);
+    public static final Style DEFAULT_BOLD_STYLE = Style.EMPTY.withBold(true);
+    public static final Style DEFAULT_EMPTY_STYLE = Style.EMPTY;
+    public static final Style DEFAULT_ERROR_STYLE = Style.EMPTY.withColor(0xFF0000);
+
+    public static final Style TOOLTIP_ITALIC_STYLE = Style.EMPTY.withColor(0x25E2CD);
+    public static final Style TOOLTIP_BOLD_STYLE = Style.EMPTY.withColor(0x94FFDE).withBold(true);
+    public static final Style TOOLTIP_EMPTY_STYLE = Style.EMPTY.withColor(0x00A0DD);
+    private static final Style TOOLTIP_BOLD_ITALIC_STYLE = Style.EMPTY.withColor(0xD3FCE6).withBold(true).withItalic(true);
 
     /**
      * The {@link TextTransformer} using default styles.
@@ -70,7 +75,7 @@ public class TextTransformer {
      *     <li> {@code ***bold italic***} - <b><i>bold italic</i></b>
      * </ul>
      */
-    public static final TextTransformer DEFAULT = new TextTransformer();
+    public static final TextTransformer defaultInstance = new TextTransformer();
     /**
      * The {@link TextTransformer} used in tooltips.
      * 
@@ -84,11 +89,11 @@ public class TextTransformer {
      * </ul>
      * </div>
      */
-    public static final TextTransformer TOOLTIPS = new TextTransformer()
-            .withEmptyStyle(Style.EMPTY.withColor(0x00A0DD))
-            .withItalicStyle(Style.EMPTY.withColor(0x25E2CD))
-            .withBoldStyle(Style.EMPTY.withColor(0x94FFDE).withBold(true))
-            .withBoldItalicStyle(Style.EMPTY.withColor(0xD3FCE6).withBold(true).withItalic(true));
+    public static final TextTransformer tooltipsInstance = new TextTransformer()
+            .withEmptyStyle(TOOLTIP_EMPTY_STYLE)
+            .withItalicStyle(TOOLTIP_ITALIC_STYLE)
+            .withBoldStyle(TOOLTIP_BOLD_STYLE)
+            .withBoldItalicStyle(TOOLTIP_BOLD_ITALIC_STYLE);
 
     private Style italicStyle = DEFAULT_ITALIC_STYLE;
     private Style boldStyle = DEFAULT_BOLD_STYLE;
