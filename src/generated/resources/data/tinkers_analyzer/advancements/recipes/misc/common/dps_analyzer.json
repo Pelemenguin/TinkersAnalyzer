@@ -15,7 +15,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "tinkers_analyzer:dps_analyzer"
+        "recipe": "tinkers_analyzer:common/dps_analyzer"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "tinkers_analyzer:dps_analyzer"
+      "tinkers_analyzer:common/dps_analyzer"
     ]
   },
   "sends_telemetry_event": false

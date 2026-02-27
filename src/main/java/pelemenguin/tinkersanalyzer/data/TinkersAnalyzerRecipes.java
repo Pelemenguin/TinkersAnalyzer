@@ -94,12 +94,13 @@ public final class TinkersAnalyzerRecipes extends RecipeProvider {
             .setTools(TinkerTags.Items.MODIFIABLE)
             .save(consumer, modifierRecipeId("dps_analyzer"));
 
+        // Entity Radar
         ModifierRecipeBuilder.modifier(TinkersAnalyzerModifiers.ENTITY_RADAR)
-        .addInput(TinkersAnalyzerItems.ENTITY_RADAR.get())
-        .checkTraitLevel()
-        .exactLevel(1)
-        .setTools(TinkerTags.Items.MODIFIABLE)
-        .save(consumer, modifierRecipeId("entity_radar"));
+            .addInput(TinkersAnalyzerItems.ENTITY_RADAR.get())
+            .checkTraitLevel()
+            .exactLevel(1)
+            .setTools(TinkerTags.Items.MODIFIABLE)
+            .save(consumer, modifierRecipeId("entity_radar"));
 
         // Copper Gauge
         ModifierRecipeBuilder.modifier(TinkersAnalyzerModifiers.COPPER_GAUGE)
