@@ -12,6 +12,8 @@
     "item.tinkers_analyzer.entity_radar.tooltip.4": "对实体*交互*以跟踪**同类型**实体",
     "item.tinkers_analyzer.entity_radar.tooltip.tracking": "当前追踪：",
 
+    "itemGroup.tinkers_analyzer.default": "工匠分析仪",
+
         "_comment_modifiers": " ========== 强化 ========== ",
 
     "modifier.tinkers_analyzer.dps_analyzer": "DPS分析仪",

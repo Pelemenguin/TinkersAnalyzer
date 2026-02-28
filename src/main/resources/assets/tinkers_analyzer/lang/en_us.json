@@ -12,6 +12,8 @@
     "item.tinkers_analyzer.entity_radar.tooltip.4": "*Interact* with an entity to track entities **of the same type**",
     "item.tinkers_analyzer.entity_radar.tooltip.tracking": "Currently tracking: ",
 
+    "itemGroup.tinkers_analyzer.default": "Tinker's Analyzer",
+
         "_comment_modifiers": " ========== MODIFIERS ========== ",
 
     "modifier.tinkers_analyzer.dps_analyzer": "DPS Analyzer",
