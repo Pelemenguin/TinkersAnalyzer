@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.mojang.authlib.minecraft.client.MinecraftClient;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import net.minecraft.util.profiling.jfr.stats.CpuLoadStat;
 import org.joml.Matrix4f;
 import org.slf4j.Logger;
 
@@ -27,6 +30,7 @@ import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import pelemenguin.tinkersanalyzer.client.graph.AnalyzerGraph;
 import pelemenguin.tinkersanalyzer.client.graph.IAnalyzerGraphCreator;
+import pelemenguin.tinkersanalyzer.client.util.render.MSAAFrameBuffer;
 import pelemenguin.tinkersanalyzer.content.item.IAnalyzerItem;
 import pelemenguin.tinkersanalyzer.library.Analyzer;
 import pelemenguin.tinkersanalyzer.library.hook.DisplayAnalyzerGraphModifierHook;
@@ -35,6 +39,9 @@ import slimeknights.tconstruct.library.tools.item.IModifiable;
 import slimeknights.tconstruct.library.tools.nbt.ToolStack;
 
 public class AnalyzerOverlay implements IGuiOverlay {
+
+    public static final boolean ENABLE_AA = true;
+    public static final int TARGET_MSAA_SAMPLES = 8; // 2,4,8,16
 
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final AnalyzerOverlay INSTANCE = new AnalyzerOverlay();
@@ -51,13 +58,34 @@ public class AnalyzerOverlay implements IGuiOverlay {
         }
     }
 
+    // manage msaa framebuffer
+    private MSAAFrameBuffer msaa;
+    private int currW = -1;
+    private int currH = -1;
+    private int currS = -1;
+
+    public void checkResize(int width, int height, int samples) {
+        if (currW != width || currH != height || currS != samples) {
+            if (msaa != null) msaa.destroy();
+            msaa = new MSAAFrameBuffer(width, height, samples);
+            currW = width;
+            currH = height;
+            currS = samples;
+        }
+    }
+
     private final Analyzer analyzer = new Analyzer();
+
     @Override
     public void render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
         if (Minecraft.getInstance().options.getCameraType() != CameraType.FIRST_PERSON) {
             return;
         }
-        final LocalPlayer player = Minecraft.getInstance().player;
+        var mc = Minecraft.getInstance();
+        var mainFBO = mc.getMainRenderTarget();
+        checkResize(mainFBO.width, mainFBO.height, TARGET_MSAA_SAMPLES);
+        if (ENABLE_AA) msaa.startRendering();
+        final LocalPlayer player = mc.player;
         if (player == null) return;
         if (this.needUpdate) {
             this.analyzer.clear();
@@ -121,8 +149,8 @@ public class AnalyzerOverlay implements IGuiOverlay {
             modelViewStack.popPose();
             RenderSystem.applyModelViewMatrix();
         }
-
         AnalyzerLayout.INSTANCE.drawEditingModeOverlay(guiGraphics, screenWidth, screenHeight);
+        if (ENABLE_AA) msaa.endRendering();
     }
 
     public void loadAnalyzer(Analyzer analyzer) {
@@ -151,6 +179,7 @@ public class AnalyzerOverlay implements IGuiOverlay {
         this.needUpdate = true;
     }
 
-    private AnalyzerOverlay() {}
+    private AnalyzerOverlay() {
+    }
 
 }
