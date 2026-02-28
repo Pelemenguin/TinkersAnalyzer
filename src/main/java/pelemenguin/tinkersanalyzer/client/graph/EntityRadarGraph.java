@@ -1,10 +1,10 @@
 package pelemenguin.tinkersanalyzer.client.graph;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.registries.ForgeRegistries;
+import pelemenguin.tinkersanalyzer.TinkersAnalyzer;
 import pelemenguin.tinkersanalyzer.client.graph.element.RadarGraphElement;
 import pelemenguin.tinkersanalyzer.client.graph.element.TaggedTextGraphElement;
 import pelemenguin.tinkersanalyzer.content.TinkersAnalyzerModifiers;
@@ -20,7 +20,8 @@ public class EntityRadarGraph extends AnalyzerGraph {
         this.elements.clear();
         this.addElement(this.element);
         if (this.tracking != null) {
-            TaggedTextGraphElement text = new TaggedTextGraphElement(this.tracking::getDescription).colored(this.color).tagBelow(Component.literal("Tracking"));
+            TaggedTextGraphElement text = new TaggedTextGraphElement(this.tracking::getDescription).colored(this.color).tagAbove(
+                    TinkersAnalyzer.makeModifierTranslation("entity_radar.tracking"));
             text.x = this.element.getWidth() + 1;
             text.scale = 2;
             this.addElement(text);

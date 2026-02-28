@@ -1,0 +1,6 @@
+{
+    "tinkers_analyzer:dps_analyzer": ["tinkers_analyzer:item/dps_analyzer", "tconstruct:gui/modifiers/book"],
+    "tinkers_analyzer:entity_radar": ["tinkers_analyzer:item/entity_radar", "tconstruct:gui/modifiers/book"],
+    "tinkers_analyzer:copper_gauge": ["tconstruct:block/smeltery/io/gauge", "tconstruct:gui/modifiers/book"],
+    "tinkers_analyzer:obsidian_gauge": ["tconstruct:block/foundry/io/gauge", "tconstruct:gui/modifiers/book"]
+}

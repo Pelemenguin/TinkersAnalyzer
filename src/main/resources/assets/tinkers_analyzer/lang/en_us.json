@@ -12,7 +12,7 @@
     "item.tinkers_analyzer.entity_radar.tooltip.4": "*Interact* with an entity to track entities **of the same type**",
     "item.tinkers_analyzer.entity_radar.tooltip.tracking": "Currently tracking: ",
 
-    "itemGroup.tinkers_analyzer.default": "Tinker's Analyzer",
+    "itemGroup.tinkers_analyzer.default": "Tinkers' Analyzers",
 
         "_comment_modifiers": " ========== MODIFIERS ========== ",
 
@@ -29,6 +29,7 @@
     "modifier.tinkers_analyzer.entity_radar.flavor": "Better than a spyglass!",
     "modifier.tinkers_analyzer.entity_radar.description": "Display living entities nearby",
     "modifier.tinkers_analyzer.entity_radar.tooltip": "Entity Radar: ",
+    "modifier.tinkers_analyzer.entity_radar.tracking": "Tracking",
 
     "modifier.tinkers_analyzer.copper_gauge": "Copper Gauge",
     "modifier.tinkers_analyzer.copper_gauge.flavor": "Watching carefully...",

@@ -29,6 +29,7 @@
     "modifier.tinkers_analyzer.entity_radar.flavor": "好过一个望远镜！",
     "modifier.tinkers_analyzer.entity_radar.description": "显示周围的实体",
     "modifier.tinkers_analyzer.entity_radar.tooltip": "实体雷达：",
+    "modifier.tinkers_analyzer.entity_radar.tracking": "正在追踪",
 
     "modifier.tinkers_analyzer.copper_gauge": "铜量计",
     "modifier.tinkers_analyzer.copper_gauge.flavor": "仔细观察……",
