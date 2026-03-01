@@ -14,11 +14,11 @@ public class AnalyzerRenderConfig {
         builder.push("renderConfig");
 
         ENABLE_AA = builder.comment(
-                "Enables antialias"
+                "Whether to enable anti-aliasing"
             ).define("enableAA", true);
 
         TARGET_MSAA_SAMPLES = builder.comment(
-                "Determins the target MSAA samples",
+                "Determines the target MSAA samples",
                 "It should be 2, 4, 8, 16, etc."
             ).defineInRange("targetMSAASamples", 8, 1, 2147483647);
 
