@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.mojang.authlib.minecraft.client.MinecraftClient;
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import net.minecraft.util.profiling.jfr.stats.CpuLoadStat;
 import org.joml.Matrix4f;
 import org.slf4j.Logger;
 
@@ -40,8 +37,8 @@ import slimeknights.tconstruct.library.tools.nbt.ToolStack;
 
 public class AnalyzerOverlay implements IGuiOverlay {
 
-    public static final boolean ENABLE_AA = true;
-    public static final int TARGET_MSAA_SAMPLES = 8; // 2,4,8,16
+    static boolean ENABLE_AA = true;
+    static int TARGET_MSAA_SAMPLES = 8; // 2,4,8,16
 
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final AnalyzerOverlay INSTANCE = new AnalyzerOverlay();
@@ -151,6 +148,8 @@ public class AnalyzerOverlay implements IGuiOverlay {
         }
         AnalyzerLayout.INSTANCE.drawEditingModeOverlay(guiGraphics, screenWidth, screenHeight);
         if (ENABLE_AA) msaa.endRendering();
+
+        AnalyzerRenderConfig.checkUpdate();
     }
 
     public void loadAnalyzer(Analyzer analyzer) {

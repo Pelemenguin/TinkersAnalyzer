@@ -23,15 +23,12 @@ public class AnalyzerLayoutConfig {
 
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    private static ForgeConfigSpec SPEC;
     private static ForgeConfigSpec.ConfigValue<List<? extends String>> LAYOUTS;
 
     public static final String LAYOUT_CONFIG_PATH = "layoutConfig";
     public static final String LAYOUT_LIST_PATH = "layoutEntries";
 
-    public static void init() {
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-
+    public static void init(ForgeConfigSpec.Builder builder) {
         builder.push("layoutConfig");
 
         LAYOUTS = builder.comment(
@@ -55,12 +52,6 @@ public class AnalyzerLayoutConfig {
             });
 
         builder.pop();
-
-        SPEC = builder.build();
-    }
-
-    public static ForgeConfigSpec spec() {
-        return SPEC;
     }
 
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> layouts() {

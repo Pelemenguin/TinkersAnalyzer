@@ -8,6 +8,9 @@ import org.lwjgl.opengl.GL45;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * @author SpartanB312
+ */
 public class MSAAFrameBuffer {
 
     // properties

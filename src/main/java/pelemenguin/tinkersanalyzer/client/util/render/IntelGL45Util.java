@@ -5,6 +5,8 @@ import org.lwjgl.opengl.GL45;
 
 /**
  * Fix intel graphics driver bug
+ * 
+ * @author SpartanB312
  */
 public class IntelGL45Util {
 
